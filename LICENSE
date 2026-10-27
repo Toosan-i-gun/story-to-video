@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Toosan
+Copyright (c) 2026 story-to-video contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -11,6 +11,11 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
+
+注意：本仓库只涵盖自身的代码与文档。上游依赖各自遵循其许可 ——
+easyVoice（无 LICENSE 文件，默认保留所有权利，自用即可）、
+资源圆体 Resource Han Rounded（SIL OFL 1.1）、GSAP（其标准许可）。
+用这套流程产出的**故事内容**的著作权归故事作者。
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

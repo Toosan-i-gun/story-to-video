@@ -1,0 +1,2079 @@
+{
+  "title": {
+    "text": "小萤火虫的一粒光",
+    "sub": "一个关于一点点光的故事",
+    "start": 0.85,
+    "duration": 8.2,
+    "subStart": 3.2
+  },
+  "total": 292.0,
+  "fps": 30,
+  "mood": "calm",
+  "bedVolume": 0.26,
+  "palette": {
+    "night": "#16233a",
+    "nightSoft": "#1d2d49",
+    "ink": "#0a1220",
+    "chalk": "#f3ead9",
+    "lamp": "#f6c445",
+    "bank": "#121e2b",
+    "waterDeep": "#0f1c34",
+    "waterBand": "#22385c",
+    "stem": "#243840",
+    "leaf": "#1a2b32",
+    "plume": "#2b3f42",
+    "crown": "#0c2018"
+  },
+  "lines": [
+    {
+      "id": "v01",
+      "text": "夏天的晚上，溪水哗啦哗啦地流，芦苇叶子轻轻地摇。",
+      "start": 1.2,
+      "duration": 6.24
+    },
+    {
+      "id": "v02",
+      "text": "芦苇丛里，住着一只小萤火虫，叫豆豆。",
+      "start": 9.0,
+      "duration": 4.59
+    },
+    {
+      "id": "v03",
+      "text": "豆豆今年第一次学发光。",
+      "start": 15.2,
+      "duration": 2.55
+    },
+    {
+      "id": "v04",
+      "text": "可是他的光很小很小，只有一粒米那么大。藏在翅膀底下，一闪，像谁不小心眨了一下眼睛。",
+      "start": 22.6
+    },
+    {
+      "id": "v05",
+      "text": "「再攒攒，再攒攒。」爷爷说，「我们萤火虫的光，都是自己一点一点攒起来的。」",
+      "start": 34.4
+    },
+    {
+      "id": "v06",
+      "text": "豆豆每天都攒。他把白天晒到的太阳、闻到的花香、听见的溪水声，都悄悄地收进肚子里。",
+      "start": 45.2
+    },
+    {
+      "id": "v07",
+      "text": "可是到了晚上，他的光，还是只有一粒米那么大。",
+      "start": 57.0
+    },
+    {
+      "id": "v08",
+      "text": "这天晚上，萤火虫们要开点灯会。大家要一起飞到溪边最高的老樟树上，把整棵树点亮，像挂满了小星星。",
+      "start": 66.6
+    },
+    {
+      "id": "v09",
+      "text": "「豆豆，快上来呀！」小伙伴们在树上喊。",
+      "start": 80.6
+    },
+    {
+      "id": "v10",
+      "text": "豆豆飞了一半，停了下来。他低头看看自己的光——那么小。飞到树上，谁会看见呢？",
+      "start": 86.8
+    },
+    {
+      "id": "v11",
+      "text": "他悄悄地落回草丛，把光收进翅膀里，缩成一个小圆球。",
+      "start": 96.6
+    },
+    {
+      "id": "v12",
+      "text": "就在这时，他听见一个很轻很轻的声音。「呜……我的家在哪儿呀？」",
+      "start": 105.6
+    },
+    {
+      "id": "v13",
+      "text": "豆豆拨开草叶。一只小蜗牛背着壳，慢慢地爬，触角一抖一抖的。",
+      "start": 113.2
+    },
+    {
+      "id": "v14",
+      "text": "他的家在一块青石头下面的缝里。可是天太黑了，他找不到那块石头。",
+      "start": 121.0
+    },
+    {
+      "id": "v15",
+      "text": "「我帮你找。」豆豆说。他把翅膀张开一点点，让那粒米一样的光，漏出来。",
+      "start": 129.4
+    },
+    {
+      "id": "v16",
+      "text": "光很小，只照得亮脚边一小圈草。",
+      "start": 140.2
+    },
+    {
+      "id": "v17",
+      "text": "「往前一点，再往前一点。」",
+      "start": 145.4
+    },
+    {
+      "id": "v18",
+      "text": "豆豆就往前飞一点点，停一下，等小蜗牛慢慢爬过来。再往前飞一点点，再停一下。",
+      "start": 149.4
+    },
+    {
+      "id": "v19",
+      "text": "草叶上的露水被光照到，亮晶晶的，像撒了一路的小珠子。",
+      "start": 160.2
+    },
+    {
+      "id": "v20",
+      "text": "他们走过三丛蒲公英，绕过一块圆石头，又爬过一根倒下的小树枝。",
+      "start": 167.4
+    },
+    {
+      "id": "v21",
+      "text": "树顶上，萤火虫们的灯会开始了。一片亮堂堂的光，远远地照下来。",
+      "start": 176.0
+    },
+    {
+      "id": "v22",
+      "text": "小蜗牛抬头看了看，说：「那么亮的光，照不到我这儿。」",
+      "start": 184.8
+    },
+    {
+      "id": "v23",
+      "text": "「嗯。」豆豆说，「我的光小，可是刚刚好。」",
+      "start": 191.6
+    },
+    {
+      "id": "v24",
+      "text": "又走了一小段，前面出现了一块青石头。",
+      "start": 198.2
+    },
+    {
+      "id": "v25",
+      "text": "「就是这儿！」小蜗牛高兴地说，「谢谢你，豆豆。你的光刚刚好，一点也不多，一点也不少。」",
+      "start": 203.8
+    },
+    {
+      "id": "v26",
+      "text": "小蜗牛钻进石缝，回过头，轻轻地说：「晚安。」豆豆也轻轻地说：「晚安。」",
+      "start": 214.6
+    },
+    {
+      "id": "v27",
+      "text": "他抬起头。老樟树上的光像一大片星星。风一吹，星星就晃一晃。",
+      "start": 224.6
+    },
+    {
+      "id": "v28",
+      "text": "豆豆张开翅膀，让那粒米一样的光，亮起来。",
+      "start": 233.4
+    },
+    {
+      "id": "v29",
+      "text": "奇怪，他一点也不觉得它小了。",
+      "start": 239.2
+    },
+    {
+      "id": "v30",
+      "text": "爷爷飞下来，落在他旁边，说：「看见了吗？光不是比谁亮。光是照到需要它的人身上，才算亮过。」",
+      "start": 243.4
+    },
+    {
+      "id": "v31",
+      "text": "那天晚上，豆豆睡得很香。",
+      "start": 256.6
+    },
+    {
+      "id": "v32",
+      "text": "从那天起，每天晚上，豆豆都会提着他那一粒光，沿着溪边慢慢地飞一圈。",
+      "start": 261.0
+    },
+    {
+      "id": "v33",
+      "text": "谁在夜里找不到路，谁就能看见草丛底下，有一点点温柔的亮。",
+      "start": 271.0
+    },
+    {
+      "id": "v34",
+      "text": "好了，故事讲完了。现在，把你的小灯，也收进被子里吧。晚安。",
+      "start": 280.2
+    }
+  ],
+  "captions": {
+    "bottom": 88,
+    "size": 45,
+    "colour": "#f1e6d0",
+    "lead": 0.12,
+    "tail": 0.45
+  },
+  "endcard": {
+    "word": "晚安",
+    "show": 288.4
+  },
+  "scenes": [
+    {
+      "id": "s1",
+      "start": 0.0,
+      "end": 22.0,
+      "layers": [
+        {
+          "type": "sky",
+          "horizon": 676,
+          "band1": 0.5
+        },
+        {
+          "type": "stars",
+          "count": 64,
+          "height": 470
+        },
+        {
+          "type": "farbank",
+          "y": 690
+        },
+        {
+          "type": "water",
+          "y": 676,
+          "to": 900,
+          "ripples": 20,
+          "glints": 16
+        },
+        {
+          "type": "ground",
+          "y": 898
+        },
+        {
+          "type": "reeds",
+          "far": true,
+          "scale": 0.5,
+          "leaves": 2,
+          "sway": true,
+          "items": [
+            [
+              150,
+              690,
+              168,
+              4
+            ],
+            [
+              232,
+              694,
+              196,
+              -6
+            ],
+            [
+              318,
+              688,
+              156,
+              -8
+            ],
+            [
+              520,
+              696,
+              180,
+              10
+            ],
+            [
+              880,
+              690,
+              164,
+              -6
+            ],
+            [
+              962,
+              696,
+              198,
+              9
+            ],
+            [
+              1062,
+              688,
+              152,
+              -7
+            ],
+            [
+              1240,
+              694,
+              184,
+              8
+            ],
+            [
+              1332,
+              688,
+              160,
+              -9
+            ],
+            [
+              1900,
+              696,
+              190,
+              6
+            ],
+            [
+              1978,
+              690,
+              166,
+              -8
+            ]
+          ]
+        },
+        {
+          "type": "grassmass",
+          "top": 1010
+        },
+        {
+          "type": "reeds",
+          "scale": 1,
+          "leaves": 2,
+          "sway": true,
+          "items": [
+            [
+              1420,
+              900,
+              620,
+              10
+            ],
+            [
+              1490,
+              906,
+              700,
+              -7
+            ],
+            [
+              1558,
+              902,
+              560,
+              14
+            ],
+            [
+              1626,
+              908,
+              740,
+              -11
+            ],
+            [
+              1694,
+              900,
+              640,
+              7
+            ],
+            [
+              1766,
+              908,
+              780,
+              -15
+            ],
+            [
+              1836,
+              902,
+              660,
+              9
+            ],
+            [
+              54,
+              900,
+              660,
+              13
+            ],
+            [
+              130,
+              906,
+              760,
+              -9
+            ],
+            [
+              206,
+              900,
+              600,
+              7
+            ],
+            [
+              1112,
+              898,
+              470,
+              8
+            ]
+          ]
+        },
+        {
+          "type": "blades",
+          "count": 62,
+          "base": 1058,
+          "h": 110,
+          "hVar": 190
+        },
+        {
+          "type": "stones",
+          "items": [
+            [
+              470,
+              862,
+              74,
+              30
+            ],
+            [
+              598,
+              886,
+              96,
+              38
+            ],
+            [
+              760,
+              856,
+              62,
+              26
+            ],
+            [
+              352,
+              892,
+              58,
+              24
+            ]
+          ]
+        },
+        {
+          "type": "farflies",
+          "items": [
+            [
+              1680,
+              470
+            ],
+            [
+              980,
+              402
+            ]
+          ]
+        }
+      ],
+      "characters": [
+        {
+          "kind": "firefly",
+          "id": "dou",
+          "x": 1450,
+          "y": 826,
+          "size": 1.55,
+          "opacity": 0
+        }
+      ],
+      "camera": [],
+      "ops": [
+        {
+          "op": "cam",
+          "t": 0,
+          "dur": 13.2,
+          "scale": 1.05,
+          "focus": [
+            960,
+            540
+          ],
+          "ease": "none",
+          "from": {
+            "scale": 1,
+            "focus": [
+              960,
+              540
+            ]
+          }
+        },
+        {
+          "op": "cam",
+          "t": 13.2,
+          "dur": 8.4,
+          "scale": 1.9,
+          "focus": [
+            1450,
+            806
+          ]
+        },
+        {
+          "op": "slide",
+          "target": "ripples",
+          "t": 0,
+          "dur": 22,
+          "from": -26,
+          "x": 22
+        },
+        {
+          "op": "slide",
+          "target": "glints",
+          "t": 0,
+          "dur": 22,
+          "from": 16,
+          "x": -14
+        },
+        {
+          "op": "twinkle",
+          "t": 1.0,
+          "every": 7,
+          "step": 0.55
+        },
+        {
+          "op": "sway",
+          "t": 0.1,
+          "step": 0.23
+        },
+        {
+          "op": "float",
+          "t": 0.4
+        },
+        {
+          "op": "rise",
+          "target": "dou",
+          "t": 14.6,
+          "dur": 1.6,
+          "fromY": 60,
+          "fromScale": 0.9
+        },
+        {
+          "op": "flap",
+          "target": "dou",
+          "t": 14.8,
+          "rate": 0.12,
+          "until": 7.2
+        },
+        {
+          "op": "bob",
+          "target": "dou",
+          "t": 15.3,
+          "amp": -7,
+          "dur": 1.4,
+          "repeat": 5
+        },
+        {
+          "op": "glow",
+          "target": "dou",
+          "t": 15.0,
+          "from": 0.7,
+          "to": 1,
+          "dur": 1.1,
+          "repeat": 6
+        },
+        {
+          "op": "scale",
+          "target": "dou",
+          "t": 14.6,
+          "from": 1,
+          "to": 1.72,
+          "dur": 7.0,
+          "ease": "power1.inOut"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "start": 22.0,
+      "end": 44.5,
+      "layers": [
+        {
+          "type": "sky",
+          "horizon": 470,
+          "band1": 0.4
+        },
+        {
+          "type": "blurmass",
+          "count": 11,
+          "bottom": 1120,
+          "rx": 30
+        },
+        {
+          "type": "farflies",
+          "items": [
+            [
+              300,
+              300
+            ],
+            [
+              1560,
+              250
+            ],
+            [
+              1180,
+              170
+            ]
+          ]
+        },
+        {
+          "type": "leaf",
+          "from": [
+            -160,
+            1000
+          ],
+          "ctrl": [
+            760,
+            760
+          ],
+          "to": [
+            1980,
+            452
+          ],
+          "w": 96
+        },
+        {
+          "type": "blades",
+          "count": 0
+        }
+      ],
+      "characters": [
+        {
+          "kind": "firefly",
+          "id": "dou",
+          "x": 900,
+          "y": 636,
+          "size": 3.0,
+          "opacity": 1
+        },
+        {
+          "kind": "firefly",
+          "id": "gp",
+          "x": 1600,
+          "y": 190,
+          "size": 3.9,
+          "opacity": 0,
+          "grandpa": true
+        }
+      ],
+      "ops": [
+        {
+          "op": "cam",
+          "t": 0,
+          "dur": 22.5,
+          "scale": 1.22,
+          "focus": [
+            900,
+            540
+          ],
+          "ease": "none",
+          "from": {
+            "scale": 1.0,
+            "focus": [
+              960,
+              540
+            ]
+          }
+        },
+        {
+          "op": "flap",
+          "target": "dou",
+          "t": 0,
+          "rate": 2.4,
+          "until": 20,
+          "from": 0.86
+        },
+        {
+          "op": "bob",
+          "target": "dou",
+          "t": 0,
+          "amp": -4,
+          "dur": 2.1,
+          "repeat": 9
+        },
+        {
+          "op": "glow",
+          "target": "dou",
+          "t": 2.0,
+          "from": 0,
+          "to": 1,
+          "dur": 0.5,
+          "repeat": 0
+        },
+        {
+          "op": "blink",
+          "target": "dou",
+          "t": 0.0,
+          "at": [
+            3.6,
+            5.4
+          ]
+        },
+        {
+          "op": "rise",
+          "target": "gp",
+          "t": 11.4,
+          "dur": 3.6,
+          "fromY": -140,
+          "fromScale": 1
+        },
+        {
+          "op": "flap",
+          "target": "gp",
+          "t": 11.4,
+          "rate": 0.15,
+          "until": 10
+        },
+        {
+          "op": "glow",
+          "target": "gp",
+          "t": 11.8,
+          "from": 0,
+          "to": 1,
+          "dur": 1.4,
+          "repeat": 0
+        },
+        {
+          "op": "float",
+          "t": 0.3
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "start": 44.5,
+      "end": 66.0,
+      "layers": [
+        {
+          "type": "sky",
+          "horizon": 470,
+          "band1": 0.38
+        },
+        {
+          "type": "blurmass",
+          "count": 11,
+          "bottom": 1120,
+          "rx": 30
+        },
+        {
+          "type": "leaf",
+          "from": [
+            -160,
+            1000
+          ],
+          "ctrl": [
+            760,
+            760
+          ],
+          "to": [
+            1980,
+            452
+          ],
+          "w": 96
+        },
+        {
+          "type": "dusk",
+          "y": 720,
+          "hiddenY": 620,
+          "opacity": 0.62
+        },
+        {
+          "type": "blades",
+          "count": 24,
+          "base": 1080,
+          "h": 130,
+          "hVar": 160
+        }
+      ],
+      "characters": [
+        {
+          "kind": "firefly",
+          "id": "dou",
+          "x": 900,
+          "y": 636,
+          "size": 3.0,
+          "opacity": 1
+        }
+      ],
+      "ops": [
+        {
+          "op": "cam",
+          "t": 0,
+          "dur": 21.5,
+          "scale": 1.2,
+          "focus": [
+            900,
+            520
+          ],
+          "ease": "none",
+          "from": {
+            "scale": 1.06,
+            "focus": [
+              960,
+              540
+            ]
+          }
+        },
+        {
+          "op": "flap",
+          "target": "dou",
+          "t": 0,
+          "rate": 2.2,
+          "until": 20,
+          "from": 0.84
+        },
+        {
+          "op": "bob",
+          "target": "dou",
+          "t": 0,
+          "amp": -4,
+          "dur": 2.0,
+          "repeat": 10
+        },
+        {
+          "op": "glow",
+          "target": "dou",
+          "t": 0,
+          "from": 0.9,
+          "to": 1,
+          "dur": 1.4,
+          "repeat": 13
+        },
+        {
+          "op": "duskRise",
+          "t": 12.6,
+          "dur": 6.0,
+          "fromY": 620
+        },
+        {
+          "op": "cam",
+          "t": 13.4,
+          "dur": 6.0,
+          "scale": 1.34,
+          "focus": [
+            880,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "start": 66.0,
+      "end": 105.0,
+      "layers": [
+        {
+          "type": "sky",
+          "horizon": 690,
+          "band1": 0.5
+        },
+        {
+          "type": "stars",
+          "count": 54,
+          "height": 380
+        },
+        {
+          "type": "tree",
+          "cx": 480,
+          "cy": -140,
+          "spread": 1000,
+          "height": 620,
+          "clumps": 38,
+          "fringe": 46,
+          "fringeY": 300,
+          "fringeH": 200,
+          "lights": 92,
+          "trunk": [
+            370,
+            1100,
+            470
+          ]
+        },
+        {
+          "type": "water",
+          "y": 700,
+          "to": 900,
+          "ripples": 18,
+          "glints": 0
+        },
+        {
+          "type": "ground",
+          "y": 898
+        },
+        {
+          "type": "grassmass",
+          "top": 1006
+        },
+        {
+          "type": "blades",
+          "count": 34,
+          "base": 1064,
+          "h": 120,
+          "hVar": 190
+        }
+      ],
+      "characters": [
+        {
+          "kind": "firefly",
+          "id": "dou",
+          "x": 1300,
+          "y": 900,
+          "size": 1.5,
+          "opacity": 0
+        }
+      ],
+      "ops": [
+        {
+          "op": "cam",
+          "t": 0,
+          "dur": 12.0,
+          "scale": 1.04,
+          "focus": [
+            960,
+            540
+          ],
+          "ease": "none",
+          "from": {
+            "scale": 1,
+            "focus": [
+              960,
+              540
+            ]
+          }
+        },
+        {
+          "op": "cam",
+          "t": 12.0,
+          "dur": 10.0,
+          "scale": 1.16,
+          "focus": [
+            720,
+            470
+          ]
+        },
+        {
+          "op": "lightsIn",
+          "t": 3.0,
+          "dur": 1.5,
+          "spread": 11
+        },
+        {
+          "op": "rise",
+          "target": "dou",
+          "t": 13.6,
+          "dur": 0.8,
+          "fromY": 0,
+          "fromScale": 1
+        },
+        {
+          "op": "flap",
+          "target": "dou",
+          "t": 14.0,
+          "rate": 0.12,
+          "until": 22
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 14.0,
+          "dur": 1.6,
+          "y": -60
+        },
+        {
+          "op": "cam",
+          "t": 14.4,
+          "dur": 5.0,
+          "scale": 1.42,
+          "focus": [
+            1250,
+            720
+          ]
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 20.6,
+          "dur": 4.2,
+          "y": -250
+        },
+        {
+          "op": "cam",
+          "t": 20.6,
+          "dur": 4.2,
+          "scale": 1.5,
+          "focus": [
+            1250,
+            620
+          ]
+        },
+        {
+          "op": "lookDown",
+          "target": "dou",
+          "t": 25.0,
+          "deg": 8
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 30.6,
+          "dur": 3.4,
+          "y": 250
+        },
+        {
+          "op": "cam",
+          "t": 30.6,
+          "dur": 4.4,
+          "scale": 1.86,
+          "focus": [
+            1290,
+            830
+          ]
+        },
+        {
+          "op": "curl",
+          "target": "dou",
+          "t": 34.0,
+          "scale": 0.82
+        },
+        {
+          "op": "lampOut",
+          "target": "dou",
+          "t": 35.2,
+          "to": 0.06,
+          "dur": 1.6
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "start": 105.0,
+      "end": 139.5,
+      "layers": [
+        {
+          "type": "sky",
+          "horizon": 300,
+          "band1": 0.55
+        },
+        {
+          "type": "blurmass",
+          "count": 9,
+          "bottom": 1400,
+          "rx": 40,
+          "h": 420
+        },
+        {
+          "type": "ground",
+          "y": 880,
+          "patches": 16
+        },
+        {
+          "type": "grassmass",
+          "top": 990
+        },
+        {
+          "type": "blades",
+          "count": 30,
+          "base": 1050,
+          "h": 110,
+          "hVar": 160
+        },
+        {
+          "type": "pool",
+          "x": 760,
+          "y": 916
+        }
+      ],
+      "characters": [
+        {
+          "kind": "snail",
+          "id": "sn",
+          "x": 1330,
+          "y": 906,
+          "size": 1.25,
+          "opacity": 0
+        },
+        {
+          "kind": "firefly",
+          "id": "dou",
+          "x": 760,
+          "y": 800,
+          "size": 1.7,
+          "opacity": 0
+        }
+      ],
+      "ops": [
+        {
+          "op": "cam",
+          "t": 0,
+          "dur": 34.5,
+          "scale": 1.1,
+          "focus": [
+            960,
+            520
+          ],
+          "ease": "none",
+          "from": {
+            "scale": 1.0,
+            "focus": [
+              960,
+              540
+            ]
+          }
+        },
+        {
+          "op": "fade",
+          "target": "sn",
+          "t": 0.15,
+          "dur": 2.0,
+          "from": 0,
+          "to": 1
+        },
+        {
+          "op": "eyes",
+          "target": "sn",
+          "t": 1.0,
+          "dur": 1.9,
+          "repeat": 6
+        },
+        {
+          "op": "move",
+          "target": "sn",
+          "t": 1.0,
+          "dur": 9.0,
+          "x": -26
+        },
+        {
+          "op": "rise",
+          "target": "dou",
+          "t": 7.6,
+          "dur": 1.2,
+          "fromY": 0,
+          "fromScale": 0.9
+        },
+        {
+          "op": "flap",
+          "target": "dou",
+          "t": 7.8,
+          "rate": 0.13,
+          "until": 28
+        },
+        {
+          "op": "bob",
+          "target": "dou",
+          "t": 8.0,
+          "amp": -8,
+          "dur": 1.8,
+          "repeat": 9
+        },
+        {
+          "op": "glow",
+          "target": "dou",
+          "t": 8.0,
+          "from": 0.4,
+          "to": 0.7,
+          "dur": 1.6,
+          "repeat": 10
+        },
+        {
+          "op": "cam",
+          "t": 15.4,
+          "dur": 6.0,
+          "scale": 1.42,
+          "focus": [
+            1300,
+            800
+          ]
+        },
+        {
+          "op": "eyes",
+          "target": "sn",
+          "t": 16.4,
+          "dur": 0.9,
+          "repeat": 3
+        },
+        {
+          "op": "cam",
+          "t": 23.8,
+          "dur": 4.6,
+          "scale": 1.24,
+          "focus": [
+            1120,
+            860
+          ]
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 24.4,
+          "dur": 3.0,
+          "x": 190
+        },
+        {
+          "op": "glow",
+          "target": "dou",
+          "t": 24.8,
+          "from": 0.7,
+          "to": 1,
+          "dur": 1.2,
+          "repeat": 0
+        },
+        {
+          "op": "poolGrow",
+          "t": 24.8,
+          "from": 0.5,
+          "to": 1.0,
+          "dur": 1.8
+        },
+        {
+          "op": "poolMove",
+          "t": 24.4,
+          "x": 950,
+          "dur": 3.0
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "start": 139.5,
+      "end": 197.5,
+      "layers": [
+        {
+          "type": "sky",
+          "horizon": 676,
+          "band1": 0.42
+        },
+        {
+          "type": "tree",
+          "cx": 3100,
+          "cy": -300,
+          "spread": 1080,
+          "height": 500,
+          "clumps": 34,
+          "fringe": 30,
+          "fringeY": -60,
+          "fringeH": 320,
+          "lights": 64,
+          "trunk": [
+            3070,
+            1100,
+            300
+          ]
+        },
+        {
+          "type": "ground",
+          "y": 880,
+          "patches": 40
+        },
+        {
+          "type": "grassmass",
+          "top": 1010
+        },
+        {
+          "type": "blades",
+          "count": 130,
+          "base": 920,
+          "h": 90,
+          "hVar": 240,
+          "lean": 130
+        },
+        {
+          "type": "dandelions",
+          "y": 920,
+          "items": [
+            [
+              1330,
+              1.0
+            ],
+            [
+              1580,
+              0.86
+            ],
+            [
+              1830,
+              1.1
+            ]
+          ]
+        },
+        {
+          "type": "rock",
+          "x": 2160,
+          "y": 884,
+          "rx": 96,
+          "ry": 74
+        },
+        {
+          "type": "twig",
+          "x": 2420,
+          "y": 900
+        },
+        {
+          "type": "pool",
+          "x": 900,
+          "y": 896
+        }
+      ],
+      "characters": [
+        {
+          "kind": "snail",
+          "id": "sn",
+          "x": 800,
+          "y": 886,
+          "size": 1.15,
+          "opacity": 1
+        },
+        {
+          "kind": "firefly",
+          "id": "dou",
+          "x": 900,
+          "y": 790,
+          "size": 1.5,
+          "opacity": 1
+        }
+      ],
+      "ops": [
+        {
+          "op": "cam",
+          "t": 0,
+          "dur": 6.0,
+          "scale": 1.34,
+          "focus": [
+            940,
+            790
+          ],
+          "ease": "none",
+          "from": {
+            "scale": 1.34,
+            "focus": [
+              900,
+              790
+            ]
+          }
+        },
+        {
+          "op": "flap",
+          "target": "dou",
+          "t": 0,
+          "rate": 0.12,
+          "until": 56
+        },
+        {
+          "op": "bob",
+          "target": "dou",
+          "t": 0,
+          "amp": -6,
+          "dur": 1.5,
+          "repeat": 19
+        },
+        {
+          "op": "glow",
+          "target": "dou",
+          "t": 0,
+          "from": 0.92,
+          "to": 1,
+          "dur": 1.2,
+          "repeat": 24
+        },
+        {
+          "op": "eyes",
+          "target": "sn",
+          "t": 1.2,
+          "dur": 1.6,
+          "repeat": 28
+        },
+        {
+          "op": "move",
+          "target": "sn",
+          "t": 1.0,
+          "dur": 2.2,
+          "x": 46
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 5.9,
+          "dur": 1.5,
+          "x": 60
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 9.9,
+          "dur": 1.5,
+          "x": 110
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 12.0,
+          "dur": 1.5,
+          "x": 110
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 14.1,
+          "dur": 1.5,
+          "x": 120
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 16.2,
+          "dur": 1.5,
+          "x": 130
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 18.4,
+          "dur": 1.5,
+          "x": 140
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 21.0,
+          "dur": 1.5,
+          "x": 150
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 23.4,
+          "dur": 1.5,
+          "x": 150
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 26.0,
+          "dur": 1.5,
+          "x": 160
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 28.4,
+          "dur": 1.5,
+          "x": 170
+        },
+        {
+          "op": "cam",
+          "t": 5.9,
+          "dur": 4.0,
+          "scale": 1.34,
+          "focus": [
+            1010,
+            790
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 9.9,
+          "dur": 8.0,
+          "scale": 1.32,
+          "focus": [
+            1300,
+            790
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 18.0,
+          "dur": 9.9,
+          "scale": 1.3,
+          "focus": [
+            1720,
+            790
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 27.9,
+          "dur": 8.6,
+          "scale": 1.26,
+          "focus": [
+            2200,
+            780
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 36.5,
+          "dur": 3.6,
+          "scale": 1.12,
+          "focus": [
+            2880,
+            300
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 40.1,
+          "dur": 5.2,
+          "scale": 1.2,
+          "focus": [
+            2920,
+            240
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 45.3,
+          "dur": 3.8,
+          "scale": 1.3,
+          "focus": [
+            2620,
+            800
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 49.1,
+          "dur": 8.9,
+          "scale": 1.4,
+          "focus": [
+            2700,
+            810
+          ]
+        },
+        {
+          "op": "poolMove",
+          "t": 5.9,
+          "x": 960,
+          "dur": 1.5
+        },
+        {
+          "op": "lookDown",
+          "target": "dou",
+          "t": 52.4,
+          "deg": 10
+        },
+        {
+          "op": "poolGrow",
+          "t": 52.6,
+          "from": 1,
+          "to": 1.12,
+          "dur": 4.0
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "start": 197.5,
+      "end": 256.0,
+      "layers": [
+        {
+          "type": "sky",
+          "horizon": 340,
+          "band1": 0.4
+        },
+        {
+          "type": "tree",
+          "cx": 1000,
+          "cy": -420,
+          "spread": 2400,
+          "height": 480,
+          "clumps": 30,
+          "fringe": 0,
+          "lights": 84,
+          "r": 110,
+          "rVar": 110
+        },
+        {
+          "type": "ground",
+          "y": 900,
+          "patches": 22
+        },
+        {
+          "type": "grassmass",
+          "top": 1000
+        },
+        {
+          "type": "blades",
+          "count": 90,
+          "base": 940,
+          "h": 90,
+          "hVar": 230
+        },
+        {
+          "type": "rock",
+          "x": 1300,
+          "y": 780,
+          "rx": 300,
+          "ry": 190,
+          "crack": true
+        },
+        {
+          "type": "pool",
+          "x": 872,
+          "y": 914
+        }
+      ],
+      "characters": [
+        {
+          "kind": "snail",
+          "id": "sn",
+          "x": 1080,
+          "y": 904,
+          "size": 1.3,
+          "opacity": 1
+        },
+        {
+          "kind": "firefly",
+          "id": "dou",
+          "x": 872,
+          "y": 790,
+          "size": 1.7,
+          "opacity": 1
+        },
+        {
+          "kind": "firefly",
+          "id": "gp",
+          "x": 1120,
+          "y": 690,
+          "size": 2.2,
+          "opacity": 0,
+          "grandpa": true
+        }
+      ],
+      "ops": [
+        {
+          "op": "cam",
+          "t": 0,
+          "dur": 6.0,
+          "scale": 1.34,
+          "focus": [
+            1160,
+            800
+          ],
+          "ease": "power1.inOut",
+          "from": {
+            "scale": 1.2,
+            "focus": [
+              980,
+              800
+            ]
+          }
+        },
+        {
+          "op": "flap",
+          "target": "dou",
+          "t": 0,
+          "rate": 0.12,
+          "until": 56
+        },
+        {
+          "op": "bob",
+          "target": "dou",
+          "t": 0,
+          "amp": -6,
+          "dur": 1.6,
+          "repeat": 18
+        },
+        {
+          "op": "glow",
+          "target": "dou",
+          "t": 0,
+          "from": 0.94,
+          "to": 1,
+          "dur": 1.3,
+          "repeat": 22
+        },
+        {
+          "op": "move",
+          "target": "sn",
+          "t": 6.3,
+          "dur": 5.0,
+          "x": 120
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 6.3,
+          "dur": 5.0,
+          "x": 120
+        },
+        {
+          "op": "eyes",
+          "target": "sn",
+          "t": 6.6,
+          "dur": 0.8,
+          "repeat": 4
+        },
+        {
+          "op": "cam",
+          "t": 6.3,
+          "dur": 4.0,
+          "scale": 1.56,
+          "focus": [
+            1240,
+            800
+          ]
+        },
+        {
+          "op": "move",
+          "target": "sn",
+          "t": 17.1,
+          "dur": 3.6,
+          "x": 48
+        },
+        {
+          "op": "scale",
+          "target": "sn",
+          "t": 17.1,
+          "from": 1,
+          "to": 0.72,
+          "dur": 3.6,
+          "origin": "50% 100%"
+        },
+        {
+          "op": "fade",
+          "target": "sn",
+          "t": 20.0,
+          "dur": 2.0,
+          "from": 1,
+          "to": 0.35
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 20.4,
+          "dur": 2.4,
+          "y": -30
+        },
+        {
+          "op": "cam",
+          "t": 27.1,
+          "dur": 4.6,
+          "scale": 1.06,
+          "focus": [
+            1300,
+            240
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 35.9,
+          "dur": 4.4,
+          "scale": 1.5,
+          "focus": [
+            1080,
+            720
+          ]
+        },
+        {
+          "op": "wingOpen",
+          "target": "dou",
+          "t": 35.9,
+          "scale": 1.45,
+          "dur": 1.4
+        },
+        {
+          "op": "poolGrow",
+          "t": 36.2,
+          "from": 1,
+          "to": 1.3,
+          "dur": 3.6
+        },
+        {
+          "op": "cam",
+          "t": 41.7,
+          "dur": 3.6,
+          "scale": 2.0,
+          "focus": [
+            1080,
+            760
+          ]
+        },
+        {
+          "op": "lookDown",
+          "target": "dou",
+          "t": 42.0,
+          "deg": -8
+        },
+        {
+          "op": "cam",
+          "t": 45.9,
+          "dur": 4.4,
+          "scale": 1.72,
+          "focus": [
+            1140,
+            740
+          ]
+        },
+        {
+          "op": "rise",
+          "target": "gp",
+          "t": 45.9,
+          "dur": 3.4,
+          "fromY": -180,
+          "fromScale": 1
+        },
+        {
+          "op": "flap",
+          "target": "gp",
+          "t": 45.9,
+          "rate": 0.15,
+          "until": 8
+        },
+        {
+          "op": "glow",
+          "target": "gp",
+          "t": 46.4,
+          "from": 0,
+          "to": 1,
+          "dur": 1.6,
+          "repeat": 0
+        },
+        {
+          "op": "bob",
+          "target": "gp",
+          "t": 48.6,
+          "amp": -5,
+          "dur": 2.2,
+          "repeat": 3
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "start": 256.0,
+      "end": 292.0,
+      "layers": [
+        {
+          "type": "sky",
+          "horizon": 676,
+          "band1": 0.48
+        },
+        {
+          "type": "stars",
+          "count": 70,
+          "height": 470
+        },
+        {
+          "type": "farbank",
+          "y": 690
+        },
+        {
+          "type": "water",
+          "y": 676,
+          "to": 900,
+          "ripples": 24,
+          "glints": 18
+        },
+        {
+          "type": "ground",
+          "y": 898
+        },
+        {
+          "type": "grassmass",
+          "top": 1010
+        },
+        {
+          "type": "reeds",
+          "scale": 0.9,
+          "leaves": 2,
+          "items": [
+            [
+              1460,
+              900,
+              620,
+              10
+            ],
+            [
+              1540,
+              906,
+              700,
+              -8
+            ],
+            [
+              1620,
+              902,
+              560,
+              14
+            ],
+            [
+              1700,
+              908,
+              740,
+              -12
+            ],
+            [
+              1780,
+              900,
+              640,
+              8
+            ],
+            [
+              1860,
+              908,
+              780,
+              -14
+            ],
+            [
+              60,
+              900,
+              660,
+              12
+            ],
+            [
+              130,
+              906,
+              760,
+              -8
+            ]
+          ]
+        },
+        {
+          "type": "blades",
+          "count": 40,
+          "base": 1058,
+          "h": 110,
+          "hVar": 190
+        },
+        {
+          "type": "leaf",
+          "from": [
+            180,
+            1180
+          ],
+          "ctrl": [
+            700,
+            900
+          ],
+          "to": [
+            1240,
+            700
+          ],
+          "w": 150
+        },
+        {
+          "type": "tree",
+          "cx": 2330,
+          "cy": 380,
+          "spread": 620,
+          "height": 300,
+          "clumps": 20,
+          "fringe": 0,
+          "lights": 40,
+          "r": 60,
+          "rVar": 60,
+          "trunk": [
+            2310,
+            700,
+            500
+          ]
+        }
+      ],
+      "characters": [
+        {
+          "kind": "firefly",
+          "id": "dou",
+          "x": 690,
+          "y": 830,
+          "size": 1.9,
+          "opacity": 1
+        }
+      ],
+      "ops": [
+        {
+          "op": "cam",
+          "t": 0,
+          "dur": 5.0,
+          "scale": 1.5,
+          "focus": [
+            700,
+            800
+          ],
+          "ease": "none",
+          "from": {
+            "scale": 1.55,
+            "focus": [
+              690,
+              800
+            ]
+          }
+        },
+        {
+          "op": "bob",
+          "target": "dou",
+          "t": 0.2,
+          "amp": 3,
+          "dur": 2.6,
+          "repeat": 2
+        },
+        {
+          "op": "glow",
+          "target": "dou",
+          "t": 0.2,
+          "from": 0.62,
+          "to": 0.9,
+          "dur": 2.8,
+          "repeat": 2
+        },
+        {
+          "op": "flap",
+          "target": "dou",
+          "t": 5.0,
+          "rate": 0.12,
+          "until": 24
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 4.6,
+          "dur": 1.4,
+          "y": -16
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 5.6,
+          "dur": 4.0,
+          "x": 220,
+          "y": -150
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 9.6,
+          "dur": 5.0,
+          "x": 640,
+          "y": -60
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 14.6,
+          "dur": 5.0,
+          "x": 1040,
+          "y": 30
+        },
+        {
+          "op": "move",
+          "target": "dou",
+          "t": 19.6,
+          "dur": 5.0,
+          "x": 1180,
+          "y": 190
+        },
+        {
+          "op": "cam",
+          "t": 5.0,
+          "dur": 6.0,
+          "scale": 1.24,
+          "focus": [
+            780,
+            760
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 11.0,
+          "dur": 8.0,
+          "scale": 1.02,
+          "focus": [
+            1180,
+            660
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 19.0,
+          "dur": 7.0,
+          "scale": 0.94,
+          "focus": [
+            1260,
+            620
+          ]
+        },
+        {
+          "op": "cam",
+          "t": 26.0,
+          "dur": 4.0,
+          "scale": 0.9,
+          "focus": [
+            1240,
+            600
+          ]
+        }
+      ]
+    }
+  ]
+}

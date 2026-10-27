@@ -1,0 +1,9 @@
+# 由 setup.sh 生成的环境变量
+env.sh
+# 上游配音服务（无 LICENSE，用 fetch_easyvoice.sh 自行克隆）
+vendor/
+node_modules/
+# 项目产物
+projects/
+renders/
+.DS_Store
