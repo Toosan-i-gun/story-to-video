@@ -49,10 +49,20 @@ python3 scripts/qa_check.py --project . --video "renders/片名.mp4"   # QA + �
 
 ## 在新设备安装
 
+Skill 没有一键安装入口（未发布到 WorkBuddy 技能市场）——它就是
+`~/.workbuddy-ai/skills/` 下的一个目录，WorkBuddy 新开会话时自动扫描识别。
+所以"安装"分两步，各管各的：
+
 ```bash
-git clone https://github.com/<你>/story-to-video.git ~/.workbuddy-ai/skills/story-to-video
+# 第 1 步：装 skill 本体（把文件 clone 到 skills 目录，clone 完即已安装）
+git clone https://github.com/Toosan-i-gun/story-to-video.git ~/.workbuddy-ai/skills/story-to-video
+
+# 第 2 步：装环境依赖（Node/ffmpeg/字体/GSAP/easyVoice），不装跑不了渲染
 bash ~/.workbuddy-ai/skills/story-to-video/scripts/setup.sh
 ```
+
+- 目录里已有本 skill 的设备（如本机）跳过第 1 步。
+- 第 2 步幂等，可重复执行；装完 `source env.sh` 进入可用环境。
 
 ## 案例
 
