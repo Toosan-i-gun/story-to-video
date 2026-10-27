@@ -26,7 +26,7 @@ python3 scripts/build_film.py   --project ./projects/firefly   # film.json → �
 python3 scripts/make_voice.py   --project ./projects/firefly   # 逐句配音
 python3 scripts/make_audio.py   --project ./projects/firefly   # 程序化配乐
 npx hyperframes check --json                                   # lint
-npx hyperframes render -o "renders/片名.mp4" -q delivery --workers 1
+HF_SEGMENTED_CAPTURE=true npx -y hyperframes render --resume -q delivery --workers 3
 python3 scripts/qa_check.py --project . --video "renders/片名.mp4"   # QA + 自修提示
 ```
 

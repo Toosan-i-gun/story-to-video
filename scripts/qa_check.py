@@ -12,19 +12,21 @@
   python3 qa_check.py --project . --video x.mp4 --times 4,60,120,240
 退出码：有问题为 1，全绿为 0。
 """
-import argparse, json, os, statistics, subprocess, sys
+import argparse, glob, json, os, statistics, subprocess, sys
 
 SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def hf():
+    """返回 CLI 前缀列表。注意：glob 通配符必须用 glob.glob，expanduser 不展开。"""
     p = os.environ.get("HYPERFRAMES_BIN")
     if p:
-        return p
-    for d in os.path.expanduser("~/.npm/_npx/*/node_modules/.bin"):
+        return [p]
+    for d in sorted(glob.glob(os.path.expanduser("~/.npm/_npx/*/node_modules/.bin")),
+                    reverse=True):
         if os.path.exists(os.path.join(d, "hyperframes")):
-            return os.path.join(d, "hyperframes")
-    return "npx"
+            return [os.path.join(d, "hyperframes")]
+    return ["npx", "-y", "hyperframes"]
 
 
 def env():
@@ -39,10 +41,11 @@ def sh(cmd, **kw):
 
 
 def video_meta(mp4):
-    r = sh(["ffprobe", "-v", "error", "-show_entries", "format=duration:stream=codec_name,width,height",
+    r = sh(["ffprobe", "-v", "error", "-show_entries",
+            "format=duration:stream=codec_type,codec_name,width,height",
             "-of", "json", mp4])
     d = json.loads(r.stdout)
-    v = next(s for s in d["streams"] if s["codec_name"] == "video")
+    v = next(s for s in d["streams"] if s.get("codec_type") == "video")
     return float(d["format"]["duration"]), int(v["width"]), int(v["height"])
 
 
@@ -50,12 +53,15 @@ def loudness(mp4):
     r = sh(["ffmpeg", "-hide_banner", "-nostats", "-i", mp4,
             "-af", "loudnorm=print_format=json", "-f", "null", "-"])
     txt = r.stderr
-    out = {}
-    for k in ("input_i", "input_tp", "input_lra"):
-        i = txt.find(f'"{k}"')
-        if i >= 0:
-            out[k] = float(txt[txt.index(":", i) + 1: txt.index(",", i) if "," in txt[i:i + 40] else txt.index("}", i)])
-    return out
+    # loudnorm 在 stderr 末尾输出一个 JSON 对象，直接按 JSON 解析（手写切片会被引号坑）
+    i, j = txt.rfind("{"), txt.rfind("}")
+    if i < 0 or j <= i:
+        return {}
+    try:
+        d = json.loads(txt[i:j + 1])
+    except json.JSONDecodeError:
+        return {}
+    return {k: float(d[k]) for k in ("input_i", "input_tp", "input_lra") if k in d}
 
 
 def grab(mp4, t, png):
@@ -65,7 +71,7 @@ def grab(mp4, t, png):
 
 def snapshot(cli, proj, times, outdir):
     os.makedirs(outdir, exist_ok=True)
-    r = sh([cli, "snapshot", "--at", ",".join(str(t) for t in times), "--no-end",
+    r = sh([*cli, "snapshot", "--at", ",".join(str(t) for t in times), "--no-end",
             "-o", outdir], cwd=proj, env=env())
     frames = sorted(f for f in os.listdir(outdir) if f.startswith("frame-"))
     return [os.path.join(outdir, f) for f in frames]
@@ -122,6 +128,15 @@ def main():
 
     proj = os.path.abspath(a.project)
     film = json.load(open(os.path.join(proj, "film.json"), encoding="utf-8"))
+    # 字幕可见性检查需要每句的 end；film.json 只存 start，
+    # 配音实测的起止在 timing.json（build_film.py 回填产物），以此为准
+    timing_path = os.path.join(proj, "timing.json")
+    if os.path.exists(timing_path):
+        tmap = {l["id"]: l for l in json.load(
+            open(timing_path, encoding="utf-8")).get("lines", [])}
+        for l in film.get("lines", []):
+            if l.get("id") in tmap:
+                l.update(tmap[l["id"]])
     mp4 = os.path.abspath(a.video)
     problems, notes = [], []
 

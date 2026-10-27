@@ -52,11 +52,16 @@
 
 ## 渲染与工程
 
-22. 渲染 100% 捕获完却在收尾报 `ENOENT ... copyfile frame_XXXXX.jpg` =
-    浏览器强关与最终帧拷贝的**竞态，属偶发**，直接重跑即可（可降到 3 workers）。
-    别误判成项目问题去改 film.json。
+22. 渲染 100% 捕获完却报 `ENOENT ... copyfile frame_XXXXX.jpg` = capture 阶段撞了
+    **600s 单阶段硬超时**（浏览器被强关的连锁反应，两次必现于 t=600s，不是随机竞态）。
+    长片一律用 `HF_SEGMENTED_CAPTURE=true npx -y hyperframes render --resume`
+    分段捕获：每段独立计时绕开上限，且更快（292s 片 11.5min → 7.5min）、可断点续渲。
 23. `npx hyperframes ...` 首次运行会卡交互安装确认，**一律加 `-y`**。
 24. 后台渲染任务会随会话中断被杀（输出目录为空 + 无进程），重跑前先看
     `renders/` 是否已有完整 mp4，别盲目重来。
 25. 新建项目跑 check 前先确认 `hyperframes.json` 存在（build_film.py 已自动生成，
     老版本手工建的仓库要补）。
+26. QA 脚本三连坑的教训：ffprobe 的 `-show_entries` 过滤后字段会缺失（按
+    `codec_type` 匹配要在 show_entries 里显式列出）；loudnorm 的 JSON 用
+    `json.loads` 解析，别手写切片（引号会混进数字里）；glob 通配符必须用
+    `glob.glob`（`os.path.expanduser` 不展开 `*`）。

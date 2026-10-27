@@ -71,7 +71,7 @@ def main():
     print("  4. python3 scripts/build_film.py --project", proj)
     print("  5. python3 scripts/make_voice.py --project", proj)
     print("  6. python3 scripts/make_audio.py --project", proj, "--mood", a.mood)
-    print("  7. npx hyperframes render --workers 1 && python3 scripts/qa_check.py")
+    print("  7. HF_SEGMENTED_CAPTURE=true npx -y hyperframes render --resume && python3 scripts/qa_check.py")
 
 
 if __name__ == "__main__":
