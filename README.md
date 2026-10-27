@@ -49,20 +49,29 @@ python3 scripts/qa_check.py --project . --video "renders/片名.mp4"   # QA + �
 
 ## 在新设备安装
 
-Skill 没有一键安装入口（未发布到 WorkBuddy 技能市场）——它就是
-`~/.workbuddy-ai/skills/` 下的一个目录，WorkBuddy 新开会话时自动扫描识别。
-所以"安装"分两步，各管各的：
+Skill 本体就是一个含 `SKILL.md` 的目录，**不同 agent 工具从各自约定的目录扫描**，
+不绑定任何一家。用 `install.sh` 装到你用的工具（符号链接，skill 改动即生效）：
+
+| 工具 | 安装位置 |
+| --- | --- |
+| WorkBuddy AI | `~/.workbuddy-ai/skills/story-to-video` |
+| Claude Code | `~/.claude/skills/story-to-video` |
+| 其他遵循 Agent Skills 规范（SKILL.md）的工具 | 其各自的 skills 路径（作为参数传入） |
 
 ```bash
-# 第 1 步：装 skill 本体（把文件 clone 到 skills 目录，clone 完即已安装）
-git clone https://github.com/Toosan-i-gun/story-to-video.git ~/.workbuddy-ai/skills/story-to-video
+# 1. 装 skill 本体（clone 到任意位置，然后链接过去）
+git clone https://github.com/Toosan-i-gun/story-to-video.git
+cd story-to-video
+bash scripts/install.sh              # 自动探测本机已装的 agent 工具
+bash scripts/install.sh claude       # 或明确指定目标工具
+bash scripts/install.sh ~/.x/skills  # 或任意自定义目录
 
-# 第 2 步：装环境依赖（Node/ffmpeg/字体/GSAP/easyVoice），不装跑不了渲染
-bash ~/.workbuddy-ai/skills/story-to-video/scripts/setup.sh
+# 2. 装环境依赖（Node/ffmpeg/字体/GSAP/easyVoice），幂等
+bash scripts/setup.sh
 ```
 
-- 目录里已有本 skill 的设备（如本机）跳过第 1 步。
-- 第 2 步幂等，可重复执行；装完 `source env.sh` 进入可用环境。
+- 不支持 SKILL.md 的工具，也可以把 `SKILL.md` 的内容贴进其规则文件当工作流参考。
+- 目录里已有本 skill 的设备跳过第 1 步；`setup.sh` 可重复执行。
 
 ## 案例
 
