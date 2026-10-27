@@ -187,6 +187,18 @@ def main():
     for f in ("kit.js", "world.js"):
         shutil.copy(os.path.join(SKILL, "templates", f), os.path.join(proj, "assets", f))
 
+    # ---- hyperframes.json（渲染必需；已有则不覆盖，保留用户自定义）
+    hf_cfg = os.path.join(proj, "hyperframes.json")
+    if not os.path.exists(hf_cfg):
+        json.dump({
+            "$schema": "https://hyperframes.heygen.com/schema/hyperframes.json",
+            "registry": "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry",
+            "paths": {"blocks": "compositions", "components": "compositions/components",
+                      "assets": "assets"},
+            "media": {"autoProxy": True},
+            "authoringSkill": "hyperframes",
+        }, open(hf_cfg, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+
     # ---- 光晕贴图（预模糊，别用 filter:blur）
     halo = os.path.join(proj, "assets", "images", "cap-halo.png")
     if not os.path.exists(halo):
