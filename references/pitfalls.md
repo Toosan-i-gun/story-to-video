@@ -49,3 +49,14 @@
 19. `film.json` 是唯一事实来源；场景 HTML 是生成物，**别手改生成文件**。
 20. 字幕托底用预模糊 PNG，**别给 34 条字幕各配一个 filter:blur**（heavy overlay + 拖慢渲染）。
 21. 光晕/灯芯放进同一个 `<g class="lamp">`，一个 opacity 才能同时关掉两样。
+
+## 渲染与工程
+
+22. 渲染 100% 捕获完却在收尾报 `ENOENT ... copyfile frame_XXXXX.jpg` =
+    浏览器强关与最终帧拷贝的**竞态，属偶发**，直接重跑即可（可降到 3 workers）。
+    别误判成项目问题去改 film.json。
+23. `npx hyperframes ...` 首次运行会卡交互安装确认，**一律加 `-y`**。
+24. 后台渲染任务会随会话中断被杀（输出目录为空 + 无进程），重跑前先看
+    `renders/` 是否已有完整 mp4，别盲目重来。
+25. 新建项目跑 check 前先确认 `hyperframes.json` 存在（build_film.py 已自动生成，
+    老版本手工建的仓库要补）。
