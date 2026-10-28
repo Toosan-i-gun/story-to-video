@@ -77,7 +77,11 @@
 30. `npx hyperframes` 偶尔会卡在缓存重装（`ENOTEMPTY: rename .../hyperframes`，npm 还会报
     `CODEBUDDY_BROKER_DENY`）。别重试 npx：直接调缓存里的可执行文件
     `$(ls -t ~/.npm/_npx/*/node_modules/.bin/hyperframes | head -1) snapshot|render ...`。
-31. `check_framing` / `solve_framing` 都要做**纵向出画裁剪**：角色整体在画布下方
+31. **bash 里变量名后面紧跟中文全角字符会解析错**：`"$HF）"` 在部分 locale 下会把
+    多字节字符当成变量名的一部分 → `HF…: unbound variable`。一律写 `"${HF}）"`。
+32. **Windows 删目录联接不能用 `Remove-Item -Recurse`**：会连带删掉被链接目录里的文件。
+    用 `[System.IO.Directory]::Delete($path, $false)` 或 `cmd /c rmdir`。
+33. `check_framing` / `solve_framing` 都要做**纵向出画裁剪**：角色整体在画布下方
     （脚底 >1080）时不算压字，否则会误报几百 px；求解时对"正在出场/入场"的角色
     （可见部分 < 一半）也别追——强压镜头会把 focus 推到画布外，构图反而坏掉。
 30. **浅色纸上，写死的深色阴影/斑块会变成黑水坑**：角色影、果子堆影、地面 patches、石头、

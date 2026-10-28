@@ -86,7 +86,7 @@ python3 scripts/solve_framing.py --project ./projects/firefly   # 求解：自�
 ## 在新设备安装
 
 Skill 本体就是一个含 `SKILL.md` 的目录，**不同 agent 工具从各自约定的目录扫描**，
-不绑定任何一家。用 `install.sh` 装到你用的工具（符号链接，skill 改动即生效）：
+不绑定任何一家。用 `install.sh` / `install.ps1` 装到你用的工具（链接安装，skill 改动即生效）：
 
 | 工具 | 安装位置 |
 | --- | --- |
@@ -94,20 +94,51 @@ Skill 本体就是一个含 `SKILL.md` 的目录，**不同 agent 工具从各�
 | Claude Code | `~/.claude/skills/story-to-video` |
 | 其他遵循 Agent Skills 规范（SKILL.md）的工具 | 其各自的 skills 路径（作为参数传入） |
 
+**macOS / Linux：**
+
 ```bash
-# 1. 装 skill 本体（clone 到任意位置，然后链接过去）
 git clone https://github.com/Toosan-i-gun/story-to-video.git
 cd story-to-video
 bash scripts/install.sh              # 自动探测本机已装的 agent 工具
 bash scripts/install.sh claude       # 或明确指定目标工具
-bash scripts/install.sh ~/.x/skills  # 或任意自定义目录
+bash scripts/setup.sh                # 装环境依赖（幂等）；国内网络加 --cn
+source env.sh
+```
 
-# 2. 装环境依赖（Node/ffmpeg/字体/GSAP/easyVoice），幂等
-bash scripts/setup.sh
+**Windows（PowerShell）：**
+
+```powershell
+git clone https://github.com/Toosan-i-gun/story-to-video.git
+cd story-to-video
+powershell -ExecutionPolicy Bypass -File scripts\install.ps1
+powershell -ExecutionPolicy Bypass -File scripts\setup.ps1 -CN   # 国内网络加 -CN
+. .\env.ps1
 ```
 
 - 不支持 SKILL.md 的工具，也可以把 `SKILL.md` 的内容贴进其规则文件当工作流参考。
-- 目录里已有本 skill 的设备跳过第 1 步；`setup.sh` 可重复执行。
+- 目录里已有本 skill 的设备跳过安装那一步；`setup` 可重复执行。
+
+## 平台与国内网络
+
+三平台（macOS / Linux / Windows）的差异只集中在**装环境、离线 TTS 兜底、浏览器路径、链接方式**
+四件事上；流水线本身（film.json → HTML → 渲染 → QA）是纯 Node + Python，跨平台一致。
+
+国内网络一条开关搞定三处镜像（pip / npm / GitHub 下载）：
+
+```bash
+bash scripts/setup.sh --cn                    # macOS / Linux
+```
+```powershell
+powershell -File scripts\setup.ps1 -CN        # Windows
+```
+
+| 环节 | 直连 | 国内镜像 | 覆盖变量 |
+| --- | --- | --- | --- |
+| pip | pypi.org | 清华 TUNA | `STV_PIP_INDEX` |
+| npm / npx | registry.npmjs.org | npmmirror | `STV_NPM_REGISTRY` |
+| GitHub 克隆/下载 | github.com | `ghfast.top` 代理 | `STV_GH_MIRROR` |
+
+完整对照（含 Windows 排障顺序、已验证/未验证范围）见 [references/platforms.md](references/platforms.md)。
 
 ## 案例
 

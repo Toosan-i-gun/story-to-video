@@ -6,10 +6,11 @@
 
 用法：
   python3 make_voice.py --project ./projects/firefly
-  python3 make_voice.py --project . --voice zh-CN-XiaoyiNeural --fallback-say
-前提：easyVoice 服务已起（--api），或 --fallback-say 用 macOS say。
+  python3 make_voice.py --project . --voice zh-CN-XiaoyiNeural --fallback-tts
+前提：easyVoice 服务已起（--api），或 --fallback-tts 用系统离线 TTS
+（macOS say / Windows SAPI / Linux espeak-ng）。
 """
-import argparse, json, os, subprocess, sys, urllib.request
+import argparse, json, os, shutil, subprocess, sys, tempfile, urllib.request
 
 ROOT_HINT = "把项目目录传进来：--project ./projects/firefly"
 
@@ -26,8 +27,47 @@ def synth_edge(api, text, voice, rate, pitch, out):
     open(out, "wb").write(data)
 
 
-def synth_say(text, out, rate_wpm):
-    subprocess.run(["say", "-v", "Tingting", "-r", str(rate_wpm), "-o", out, text], check=True)
+def synth_offline(text, out, rate_wpm):
+    """离线兜底 TTS（跨平台）：macOS say / Windows SAPI / Linux espeak-ng。
+
+    产出的音频容器可能是 AIFF/WAV，但 process() 用 ffmpeg 按内容识别，
+    扩展名不影响后续处理。
+    """
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from platform_lib import is_macos, is_windows
+
+    if is_macos():
+        subprocess.run(["say", "-v", "Tingting", "-r", str(rate_wpm), "-o", out, text],
+                       check=True)
+        return
+
+    if is_windows():
+        txt = out + ".txt"
+        wav = out + ".wav"
+        open(txt, "w", encoding="utf-8-sig").write(text)
+        rate = max(-10, min(10, int((rate_wpm - 150) / 15)))   # SAPI: -10..10
+        ps = (
+            "Add-Type -AssemblyName System.Speech;"
+            "$s=New-Object System.Speech.Synthesis.SpeechSynthesizer;"
+            "$zh=$s.GetInstalledVoices()|Where-Object{$_.VoiceInfo.Culture.Name -like 'zh*'}"
+            "|Select-Object -First 1;"
+            "if($zh){$s.SelectVoice($zh.VoiceInfo.Name)};"
+            f"$s.Rate={rate};"
+            f"$s.SetOutputToWaveFile('{wav}');"
+            f"$s.Speak([IO.File]::ReadAllText('{txt}',[Text.Encoding]::UTF8));"
+            "$s.Dispose()"
+        )
+        subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+                       check=True)
+        os.replace(wav, out)
+        os.remove(txt)
+        return
+
+    for exe, lang in (("espeak-ng", "cmn"), ("espeak", "zh")):
+        if shutil.which(exe):
+            subprocess.run([exe, "-v", lang, "-s", str(rate_wpm), "-w", out, text], check=True)
+            return
+    raise RuntimeError("没有可用的离线 TTS：Linux 装 espeak-ng，或改用 easyVoice 服务")
 
 
 def process(src, dst):
@@ -56,7 +96,9 @@ def main():
     ap.add_argument("--base-rate", type=float, default=-10.0)
     ap.add_argument("--clamp", default="-26,6")
     ap.add_argument("--tolerance", type=float, default=0.22)
-    ap.add_argument("--fallback-say", action="store_true", help="easyVoice 不可用时退回 macOS say")
+    ap.add_argument("--fallback-tts", "--fallback-say", dest="fallback_tts",
+                    action="store_true",
+                    help="easyVoice 不可用时退回系统离线 TTS（macOS say / Windows SAPI / espeak-ng）")
     a = ap.parse_args()
 
     proj = os.path.abspath(a.project)
@@ -77,20 +119,20 @@ def main():
         return t
 
     old = targets()
-    tmp = tempfile_dir = "/tmp/story-to-video-voice"
+    tmp = os.path.join(tempfile.gettempdir(), "story-to-video-voice")
     os.makedirs(tmp, exist_ok=True)
 
     use_edge = True
     try:
-        probe = f"/tmp/{os.path.basename(proj)}_probe.mp3"
+        probe = os.path.join(tempfile.gettempdir(), f"{os.path.basename(proj)}_probe.mp3")
         synth_edge(a.api, "测试一下声音是否可用。", a.voice, a.base_rate, a.pitch, probe)
         if os.path.getsize(probe) < 1500:
             raise RuntimeError("探测音频过小")
     except Exception as e:
         use_edge = False
-        if not a.fallback_say:
+        if not a.fallback_tts:
             sys.exit(f"easyVoice 不可用（{e}）。先起服务：vendor/easyVoice/packages/backend "
-                     f"`PORT=3000 npx tsx src/server.ts`，或加 --fallback-say")
+                     f"`PORT=3000 npx tsx src/server.ts`，或加 --fallback-tts 用系统离线 TTS")
 
     print(f"pass 1 @{a.base_rate:+.0f}%  探测自然语速")
     probe = {}
@@ -99,7 +141,7 @@ def main():
         if use_edge:
             synth_edge(a.api, l["text"], a.voice, a.base_rate, a.pitch, raw)
         else:
-            synth_say(l["text"], raw, 152)
+            synth_offline(l["text"], raw, 152)
         probe[l["id"]] = dur_of(raw)
     tot_new, tot_old = sum(probe.values()), sum(old.values())
     print(f"  自然语速合计 {tot_new:.1f}s / 目标 {tot_old:.1f}s（{tot_new / tot_old:.3f}x）")
@@ -117,7 +159,7 @@ def main():
             if use_edge:
                 synth_edge(a.api, l["text"], a.voice, rate, a.pitch, raw)
             else:
-                synth_say(l["text"], raw, 152)
+                synth_offline(l["text"], raw, 152)
             process(raw, wav)
             d = dur_of(wav)
             err = d - target
@@ -131,7 +173,7 @@ def main():
             if use_edge:
                 synth_edge(a.api, l["text"], a.voice, rate, a.pitch, raw)
             else:
-                synth_say(l["text"], raw, 152)
+                synth_offline(l["text"], raw, 152)
             process(raw, wav)
             d, err = dur_of(wav), dur_of(wav) - target
         results.append({"id": lid, "text": l["text"], "duration": round(d, 3),

@@ -18,21 +18,33 @@ SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def hf():
-    """返回 CLI 前缀列表。注意：glob 通配符必须用 glob.glob，expanduser 不展开。"""
+    """返回 CLI 前缀列表。跨平台：走 platform_lib 找 npx 缓存里的可执行文件。"""
     p = os.environ.get("HYPERFRAMES_BIN")
     if p:
         return [p]
-    for d in sorted(glob.glob(os.path.expanduser("~/.npm/_npx/*/node_modules/.bin")),
-                    reverse=True):
-        if os.path.exists(os.path.join(d, "hyperframes")):
-            return [os.path.join(d, "hyperframes")]
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from platform_lib import hyperframes_bin
+        found = hyperframes_bin()
+        if found:
+            return [found]
+    except Exception:
+        pass
     return ["npx", "-y", "hyperframes"]
 
 
 def env():
+    """渲染/快照用的环境：浏览器路径按平台探测，找不到就不设（交给渲染器自己找）。"""
     e = dict(os.environ)
-    e.setdefault("HYPERFRAMES_BROWSER_PATH",
-                 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+    if not e.get("HYPERFRAMES_BROWSER_PATH"):
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            from platform_lib import chrome_path
+            p = chrome_path()
+            if p:
+                e["HYPERFRAMES_BROWSER_PATH"] = p
+        except Exception:
+            pass
     return e
 
 

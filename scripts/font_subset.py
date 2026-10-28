@@ -39,8 +39,18 @@ def fetch_rhr():
     tmp = tempfile.gettempdir()
     z = os.path.join(tmp, "RHR-CN.7z")
     if not os.path.exists(z):
-        print("下载资源圆体（37MB）…")
-        urllib.request.urlretrieve(RHR_URL, z)
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from platform_lib import gh_url, cn_mode
+        url = gh_url(RHR_URL)
+        print(f"下载资源圆体（37MB）{'· 国内镜像' if cn_mode() else ''}…")
+        try:
+            urllib.request.urlretrieve(url, z)
+        except Exception as e:
+            if cn_mode():
+                print(f"镜像失败（{e}），退回直连…")
+                urllib.request.urlretrieve(RHR_URL, z)
+            else:
+                raise
     out = os.path.join(tmp, "rhr")
     os.makedirs(out, exist_ok=True)
     ttf = os.path.join(out, "ResourceHanRoundedCN-Medium.ttf")
@@ -57,7 +67,11 @@ def main():
     ap.add_argument("--download", action="store_true", help="没有 --ttf 时自动下载资源圆体")
     ap.add_argument("--out", required=True)
     ap.add_argument("--text-file", required=True, help="narration.json 或任何含台词的文本")
+    ap.add_argument("--cn", action="store_true", help="用国内镜像下载字体（等价 STV_CN=1）")
     a = ap.parse_args()
+
+    if a.cn:
+        os.environ["STV_CN"] = "1"
 
     ttf = a.ttf
     if not ttf and a.download:

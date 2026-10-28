@@ -8,6 +8,7 @@
 #   bash install.sh /some/dir    # -> /some/dir/story-to-video（任意目录）
 #
 # 其他遵循 Agent Skills 规范（SKILL.md）的工具，把其 skills 路径当参数传入即可。
+# Windows 请用 PowerShell 版：powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 set -euo pipefail
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NAME="story-to-video"

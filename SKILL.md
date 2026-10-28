@@ -10,11 +10,33 @@ description: 把一个故事文本做成一支带配音、字幕、声音底和�
 
 ## 0. 环境准备（新设备先跑一次）
 
+**先判断平台**（三平台的差异、排障顺序、镜像配置见 references/platforms.md）：
+
 ```bash
+# macOS / Linux
 bash scripts/setup.sh          # 幂等：装 Node/ffmpeg/字体/easyVoice，全部自检
+source env.sh                  # 装完必须 source，至少要有 HYPERFRAMES_BROWSER_PATH
 ```
 
-装完必须 `source` 它打印的环境行（至少 `HYPERFRAMES_BROWSER_PATH`），否则起浏览器就挂。
+```powershell
+# Windows（PowerShell）
+powershell -ExecutionPolicy Bypass -File scripts\setup.ps1
+. .\env.ps1
+```
+
+**国内网络**：所有安装脚本都支持镜像开关，一条命令换三处源（pip / npm / GitHub 下载）：
+
+```bash
+bash scripts/setup.sh --cn                        # macOS / Linux
+bash scripts/fetch_easyvoice.sh --cn
+python3 scripts/font_subset.py --download --cn …  # 字体单独跑时
+```
+```powershell
+powershell -File scripts\setup.ps1 -CN            # Windows
+```
+
+自检一行：`python3 scripts/platform_lib.py` —— 应打印 `platform / chrome / hf bin`
+三个真实值；`chrome` 或 `hf bin` 是 `None` 就先解决那一项，别急着渲染。
 
 **配色库（必须）**：本技能不自己配色，色号全部取自 `handraw-style` 的 C-01–C-36。
 没装就先装：
@@ -23,6 +45,12 @@ bash scripts/setup.sh          # 幂等：装 Node/ffmpeg/字体/easyVoice，全
 git clone https://github.com/yang0/handraw-style ~/.workbuddy-ai/skills/handraw-style
 python3 scripts/color_lib.py --refresh     # 采样色卡，刷新 references/colors.json
 python3 scripts/color_lib.py --list        # 自检：能列出 36 色就通了
+```
+
+国内网络下克隆慢，可以走代理前缀（`STV_CN=1` 时脚本会自动加）：
+
+```bash
+git clone https://ghfast.top/https://github.com/yang0/handraw-style ~/.workbuddy-ai/skills/handraw-style
 ```
 
 ## 1. 流程总览（每一步的产物）
@@ -38,7 +66,7 @@ python3 scripts/color_lib.py --list        # 自检：能列出 36 色就通了
 | 6 配音 | `assets/voice/vXX.wav` | `make_voice.py` |
 | 7 声音底 | `assets/audio/bed.wav` | `make_audio.py` |
 | 8 检查 | lint + 快照 + **构图** | `hyperframes check` / `snapshot` / `check_framing.py` |
-| 9 渲染 | `renders/<片名>.mp4` | `hyperframes render --workers 1` |
+| 9 渲染 | `renders/<片名>.mp4` | `HF_SEGMENTED_CAPTURE=true hyperframes render --resume` |
 | 10 QA | 帧级体检报告 | `qa_check.py` |
 | 11 自修 | 改 film.json / 重渲 | 按 §7 处置表 |
 
@@ -147,7 +175,8 @@ python3 scripts/qa_check.py --project . --video renders/片名.mp4
 ## 8. 渲染与交付
 
 ```bash
-npx hyperframes render -o "renders/片名.mp4" -q delivery --workers 1 --skill story-to-video
+# 长片一律分段捕获（单段有 600s 上限）：
+HF_SEGMENTED_CAPTURE=true npx -y hyperframes render --resume -q delivery --workers 3
 ```
 
 - **必须 `--workers 1`**：多 worker 需 ~5GB 帧暂存，普通机器放不下（详见 pitfalls）。
@@ -163,6 +192,7 @@ npx hyperframes render -o "renders/片名.mp4" -q delivery --workers 1 --skill s
   保持"大面积剪影 + 少量清晰形状 + 唯一暖色"的规则不变，颜色一律从 `p.*` 取。
 - 声音全部是程序化合成的（numpy），没有采样素材：听感偏"氛围"不偏"拟音"，
   真要拟音（脚步质感、翻叶子）得上采样库。
-- 配音是云端 TTS（微软 Edge），需要联网；离线时回退 `say`（macOS）。
+- 配音是云端 TTS（微软 Edge），需要联网；离线时 `--fallback-tts` 回退系统 TTS：
+  macOS `say` / Windows SAPI / Linux `espeak-ng`（详见 references/platforms.md）。
 - easyVoice 仓库无 LICENSE：自用没问题，别拿去二次分发。
 - handraw-style 的色号与色卡版权归原作者 yang0（github.com/yang0/handraw-style），本技能只采样不改库。
