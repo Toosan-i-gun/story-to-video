@@ -46,15 +46,15 @@ SCENE_TMPL = """<template>
 TITLE_CSS = """
     /* 片名：蜡笔从左往右"画"出来，停一会儿就被夜色收走 */
     #{sid}-title {{
-      position: absolute; left: 158px; top: 168px;
-      font-family: "Rounded", serif; font-size: 138px; line-height: 1.1;
+      position: absolute; left: 152px; top: 146px;
+      font-family: "Rounded", serif; font-size: 118px; line-height: 1.1;
       letter-spacing: 0.05em; color: {lamp}; white-space: nowrap;
     }}
     #{sid}-title-in {{ display: block; clip-path: inset(-20% 100% -20% -4%); }}
     #{sid}-sub {{
-      position: absolute; left: 172px; top: 372px;
-      font-family: "Rounded", serif; font-size: 38px; letter-spacing: 0.34em;
-      color: #f3ead9; opacity: 0; white-space: nowrap;
+      position: absolute; left: 166px; top: 312px;
+      font-family: "Rounded", serif; font-size: 36px; letter-spacing: 0.32em;
+      color: {ink}; opacity: 0; white-space: nowrap;
     }}
 """
 
@@ -77,7 +77,7 @@ TITLE_JS = """      // 片名：从左画出来 → 停 → 被夜色收走
 ENDCARD_CSS = """
     /* 落款 */
     #{sid}-end {{ position: absolute; left: 150px; bottom: 132px;
-      font-family: "Rounded", serif; color: #f3ead9; }}
+      font-family: "Rounded", serif; color: {ink}; }}
     #{sid}-end-title {{ display: block; font-size: 46px; letter-spacing: 0.16em; opacity: 0; }}
     #{sid}-end-word {{ display: block; margin-top: 14px; font-size: 132px;
       letter-spacing: 0.12em; color: {lamp}; clip-path: inset(-20% 100% -20% -4%); }}
@@ -277,7 +277,8 @@ def main():
             fade = round(t0 + dur - 1.1, 2)
             t1 = round(T.get("subStart", t0 + 1.7), 2)
             fade2 = round(t1 + 4.2, 2)
-            extra_css += TITLE_CSS.format(sid=sid, lamp=scene_pal.get("lamp", "#f6c445"))
+            extra_css += TITLE_CSS.format(sid=sid, lamp=scene_pal.get("lamp", "#f6c445"),
+                                          ink=scene_pal.get("ink", "#f3ead9"))
             overlays += TITLE_HTML.format(sid=sid, t0=t0, dur=dur, fade=fade, t1=t1,
                                           d1=round(fade2 - t1, 2), fade2=fade2,
                                           title=T["text"], sub=T.get("sub", ""))
@@ -286,7 +287,8 @@ def main():
             E = film["endcard"]
             t = round(E["show"] - sc["start"], 2)
             dur = round(sc["end"] - E["show"], 2)
-            extra_css += ENDCARD_CSS.format(sid=sid, lamp=scene_pal.get("lamp", "#f6c445"))
+            extra_css += ENDCARD_CSS.format(sid=sid, lamp=scene_pal.get("lamp", "#f6c445"),
+                                            ink=scene_pal.get("ink", "#f3ead9"))
             overlays += ENDCARD_HTML.format(sid=sid, t=t, dur=dur,
                                             title=film["title"]["text"], word=E["word"])
             extra_js += ENDCARD_JS.format(sid=sid, t1=round(t + 0.2, 2), t2=round(t + 1.1, 2))

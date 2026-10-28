@@ -222,6 +222,40 @@ def _dig(n, rng, g):
     return buf * g
 
 
+@layer("snow")
+def _snow(n, rng, g):
+    """落雪：雪是"吸声"的——不是噼里啪啦，而是把世界压下去的一层很细的高频空气声，
+    偶尔才有一点点雪落下来的"沙"。故事里有雪才用。"""
+    air = bandpass(rng.normal(0, 1, n), 2200, 7200) * 0.5
+    air *= 1 + 0.5 * smooth_noise(n, 0.06, rng) + 0.15 * smooth_noise(n, 0.9, rng)
+    x = norm(air) * 0.55
+    # 雪粒：很稀疏、很轻的沙沙
+    grains = np.zeros(n)
+    t = rng.uniform(0.3, 2.0)
+    while t < n / SR - 0.1:
+        L = int(rng.uniform(0.02, 0.07) * SR)
+        env = np.exp(-np.linspace(0, 6, L))
+        grains[int(t * SR):int(t * SR) + L] += bandpass(rng.normal(0, 1, L), 1500, 5000) * env * rng.uniform(0.15, 0.5)
+        t += rng.uniform(0.8, 3.2)
+    return stereo(x + norm(grains) * 0.35, pan=rng.uniform(-0.2, 0.2)) * g
+
+
+@layer("flame")
+def _flame(n, rng, g):
+    """灯火的"呼"：一段低频的轻微起伏 + 偶尔一声很轻的噼啪（灯芯上的水汽）。"""
+    body = bandpass(rng.normal(0, 1, n), 90, 520) * 0.6
+    body *= 1 + 0.55 * smooth_noise(n, 0.7, rng) + 0.2 * smooth_noise(n, 4.5, rng)
+    x = norm(body) * 0.7
+    pops = np.zeros(n)
+    t = rng.uniform(0.5, 2.5)
+    while t < n / SR - 0.05:
+        L = int(rng.uniform(0.004, 0.016) * SR)
+        env = np.exp(-np.linspace(0, 9, L))
+        pops[int(t * SR):int(t * SR) + L] += rng.normal(0, 1, L) * env * rng.uniform(0.1, 0.45)
+        t += rng.uniform(1.2, 4.5)
+    return stereo(x + norm(pops) * 0.3, pan=rng.uniform(-0.1, 0.1)) * g
+
+
 @layer("steps")
 def _steps(n, rng, g):
     """小脚步：很轻的"嗒、嗒"，一串一串。"""

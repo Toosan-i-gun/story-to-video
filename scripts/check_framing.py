@@ -21,6 +21,12 @@ CHAR_BOX = {
     "chestnut": (-27, -35, 27, 25),
     "snail": (-56, -62, 56, 6),
     "firefly": (-42, -46, 42, 30),
+    # 冬日角色 / 灯
+    "badger": (-56, -94, 80, 8),
+    "fox": (-70, -138, 68, 8),
+    "rabbit": (-32, -122, 34, 8),
+    "copperLamp": (-18, -56, 18, 4),
+    "hurricaneLamp": (-26, -110, 26, 4),
 }
 
 EASE = {
@@ -150,6 +156,8 @@ def main():
                 box = CHAR_BOX.get(c["kind"])
                 if not box:
                     continue
+                if float(c.get("opacity", 1)) < 0.2:
+                    continue  # 还没登场 / 已经隐掉的角色不算遮挡
                 x, y, sx, sy, amp = char_state_at(ops, cid, t - sc["start"], c)
                 sz = float(c.get("size", 1))
                 bx0, by0, bx1, by1 = box

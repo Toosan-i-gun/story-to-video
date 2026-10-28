@@ -7,7 +7,8 @@
    3) 镜头一次推近 ≤1.35 倍                                    */
 window.WORLD = (() => {
   const { mk, rnd, leafPath, poly, crayon, reed, firefly, snail,
-          hedgehog, squirrel, mole, chestnut } = window.KIT;
+          hedgehog, squirrel, mole, chestnut,
+          badger, fox, rabbit, copperLamp, hurricaneLamp } = window.KIT;
 
   const P = (spec) => spec.palette; // 色板
 
@@ -27,6 +28,16 @@ window.WORLD = (() => {
         `<feDisplacementMap in="SourceGraphic" in2="t" scale="4.2" xChannelSelector="R" yChannelSelector="G"/>`,
     }, defsEl);
     return { wob: `url(#${prefix}-wob)`, wobS: `url(#${prefix}-wob-s)` };
+  }
+
+  // ---------- 渐变：光晕、光池都用它（叠同心椭圆会有色阶，一眼假） ----------
+  function radial(defsEl, id, stops) {
+    if (!defsEl) return null;
+    if (!defsEl.querySelector("#" + id)) {
+      const el = mk("radialGradient", { id, cx: "50%", cy: "50%", r: "50%" }, defsEl);
+      stops.forEach(([off, col, op]) => mk("stop", { offset: off, "stop-color": col, "stop-opacity": op ?? 1 }, el));
+    }
+    return "url(#" + id + ")";
   }
 
   // ---------- 层 ----------
@@ -53,7 +64,7 @@ window.WORLD = (() => {
         }
         fill = `url(#${id})`;
       }
-      mk("rect", { x: -400, y: -400, width: 2800, height: H + 400, fill }, grp);
+      mk("rect", { x: -400, y: -400, width: 2800, height: H + 1000, fill }, grp);
       mk("path", {
         d: `M-400,-400 L2520,-400 L2520,${(H * 0.45).toFixed(0)} C1940,${(H * 0.43).toFixed(0)} 1520,${(H * 0.49).toFixed(0)} 1090,${(H * 0.45).toFixed(0)} C700,${(H * 0.41).toFixed(0)} 240,${(H * 0.47).toFixed(0)} -400,${(H * 0.43).toFixed(0)} Z`,
         fill: L.bandColour ?? p.nightSoft, opacity: (L.band1 ?? 0.5).toFixed(2),
@@ -709,6 +720,318 @@ window.WORLD = (() => {
         }, grp);
       R.dirtHole = grp;
     },
+
+    // ---------- 冬日 · 雪（小獾那类故事） ----------
+    snowGround(g, L, p, f, R) {
+      // 雪地：一整片比天亮的白，地平线上压一道更亮的雪脊，底下几道很低的雪堆
+      const grp = mk("g", { filter: f.wob }, g);
+      const y = L.y ?? 780;
+      const snow = L.colour ?? p.snow ?? "#e9e4d6";
+      const lit = L.lit ?? p.snowLit ?? "#f4efe2";
+      mk("path", {
+        d: `M-400,${y + 40} C180,${y - 8} 700,${y + 26} 1180,${y + 2} C1580,${y - 20} 2200,${y + 30} 2800,${y} L2800,1400 L-400,1400 Z`,
+        fill: snow,
+      }, grp);
+      // 雪脊
+      mk("path", {
+        d: `M-400,${y + 40} C180,${y - 8} 700,${y + 26} 1180,${y + 2} C1580,${y - 20} 2200,${y + 30} 2800,${y}`,
+        stroke: lit, "stroke-width": 9, fill: "none", opacity: "0.7", "stroke-linecap": "round",
+      }, grp);
+      // 雪堆：只留亮的那一道，暗影非常淡（雪上的影子是蓝灰的，不是黑斑）
+      for (let i = 0; i < (L.drifts ?? 6); i++) {
+        const dx = -300 + rnd(i + 40) * 2600, dy = y + 70 + rnd(i + 50) * 210;
+        const rx = 120 + rnd(i + 60) * 190;
+        mk("ellipse", { cx: dx, cy: dy, rx, ry: rx * (0.17 + rnd(i + 65) * 0.08), fill: lit, opacity: (0.16 + rnd(i + 70) * 0.18).toFixed(2) }, grp);
+        if (L.shade !== false)
+          mk("ellipse", { cx: dx, cy: dy + rx * 0.09, rx: rx * 0.96, ry: rx * 0.07, fill: L.shade ?? p.snowShade ?? "#c9c2b2", opacity: (0.05 + rnd(i + 75) * 0.06).toFixed(2) }, grp);
+      }
+      // 露出来的土 / 枯枝头
+      for (let i = 0; i < (L.specks ?? 8); i++) {
+        const sx = -200 + rnd(i + 80) * 2400, sy = y + 90 + rnd(i + 90) * 240;
+        mk("ellipse", { cx: sx, cy: sy, rx: 10 + rnd(i + 100) * 22, ry: 3 + rnd(i + 110) * 5, fill: p.patchA ?? "#8a8272", opacity: (0.16 + rnd(i + 120) * 0.2).toFixed(2) }, grp);
+      }
+      R.snowGround = grp;
+    },
+
+    snowFall(g, L, p, f, R) {
+      // 落雪：慢，斜着飘一点。每个 flake 是一小簇圆点，整体往下走（配 snowfall 动作）
+      const grp = mk("g", {}, g);
+      const refs = [];
+      const n = L.count ?? 24;
+      const col = L.colour ?? p.flake ?? p.snowLit ?? "#f4efe2";
+      for (let i = 0; i < n; i++) {
+        const host = mk("g", { transform: `translate(${(-160 + rnd(i + 10) * 2240).toFixed(0)},${(-80 + rnd(i + 20) * 1000).toFixed(0)})` }, grp);
+        const el = mk("g", { opacity: (0.3 + rnd(i + 30) * 0.5).toFixed(2) }, host);
+        const k = 1 + Math.floor(rnd(i + 40) * 3);
+        for (let j = 0; j < k; j++) {
+          mk("circle", {
+            cx: ((rnd(i * 7 + j) - 0.5) * 30).toFixed(1),
+            cy: ((rnd(i * 11 + j) - 0.5) * 30).toFixed(1),
+            r: ((2.2 + rnd(i * 13 + j) * 4.2) * (L.size ?? 1)).toFixed(1),
+            fill: col,
+          }, el);
+        }
+        refs.push({ el, host, i });
+      }
+      R.snow = refs;
+    },
+
+    pine(g, L, p, f, R) {
+      // 雪压的松：几层三角叠起来，每层顶上一块雪
+      const grp = mk("g", { filter: f.wob }, g);
+      const x = L.x ?? 300, baseY = L.baseY ?? 1010;
+      const h = L.h ?? 520, w = L.w ?? 190, tiers = L.tiers ?? 4;
+      mk("path", {
+        d: `M${x - 9},${baseY} L${x + 9},${baseY} L${x + 6},${baseY - h * 0.34} L${x - 6},${baseY - h * 0.34} Z`,
+        fill: p.trunk ?? "#241d18",
+      }, grp);
+      for (let i = 0; i < tiers; i++) {
+        const t = tiers > 1 ? i / (tiers - 1) : 0;
+        const ty = baseY - h * (0.14 + t * 0.70);
+        const ww = w * (1 - t * 0.62);
+        const th = h * 0.26 * (1 - t * 0.28);
+        mk("path", {
+          d: `M${x},${(ty - th).toFixed(1)} L${(x + ww / 2).toFixed(1)},${(ty + th * 0.55).toFixed(1)}
+              Q${x},${(ty + th * 0.3).toFixed(1)} ${(x - ww / 2).toFixed(1)},${(ty + th * 0.55).toFixed(1)} Z`,
+          fill: L.colour ?? p.pine ?? "#1c2a22",
+        }, grp);
+        // 雪盖：压在上面那一半
+        mk("path", {
+          d: `M${x},${(ty - th).toFixed(1)} L${(x + ww * 0.40).toFixed(1)},${(ty + th * 0.26).toFixed(1)}
+              Q${x},${(ty + th * 0.02).toFixed(1)} ${(x - ww * 0.40).toFixed(1)},${(ty + th * 0.26).toFixed(1)} Z`,
+          fill: L.snow ?? p.snowLit ?? "#f4efe2", opacity: (L.snowOp ?? 0.9).toFixed(2),
+        }, grp);
+      }
+      R.pines = R.pines || [];
+      R.pines.push(grp);
+    },
+
+    snowBurrow(g, L, p, f, R) {
+      // 雪坡上的洞口：整座丘是被雪盖住的（白），只有拱门周围露一圈土 + 门口一块平平的大石头 + 冰凌
+      const cx = L.x ?? 960, baseY = L.y ?? 1010;
+      const w = L.w ?? 300, h = L.h ?? 280, hw = L.hw ?? w * 2.4;
+      const top = baseY - h - 110;
+      const grp = mk("g", { filter: f.wob }, g);
+      const snow = L.snow ?? p.snow ?? "#e9e4d6";
+      // 丘：一整块雪
+      crayon(grp, `M${cx - hw},${baseY + 40}
+        C${cx - hw * 0.9},${baseY - h * 0.28} ${cx - hw * 0.66},${top + 90} ${cx - w * 0.72},${top + 34}
+        C${cx - w * 0.2},${top - 12} ${cx + w * 0.34},${top + 6} ${cx + w * 0.86},${top + 60}
+        C${cx + hw * 0.5},${top + 150} ${cx + hw * 0.84},${baseY - h * 0.16} ${cx + hw},${baseY + 40}
+        L${cx + hw},1500 L${cx - hw},1500 Z`, snow, 4, { tintOpacity: 0.02 });
+      // 丘顶被风刮出来的一道亮边 + 底下一点背光的冷影（雪自己的影，不是黑斑）
+      mk("path", {
+        d: `M${cx - hw * 0.88},${baseY - h * 0.34}
+            C${cx - hw * 0.66},${top + 96} ${cx - w * 0.7},${top + 40} ${cx - w * 0.2},${top - 4}
+            C${cx + w * 0.34},${top + 12} ${cx + w * 0.86},${top + 66} ${cx + hw * 0.52},${top + 156}`,
+        stroke: L.lit ?? p.snowLit ?? "#f4efe2", "stroke-width": 10, fill: "none", opacity: "0.55", "stroke-linecap": "round",
+      }, grp);
+      mk("ellipse", { cx: cx + hw * 0.34, cy: baseY - h * 0.1, rx: hw * 0.46, ry: h * 0.2, fill: L.shade ?? p.snowShade ?? "#c9c2b2", opacity: "0.2" }, grp);
+      // 拱门：外面一圈土，里面是黑
+      const springY = baseY - h * 0.55;
+      const arch = `M${cx - w / 2},${baseY + 40} L${cx - w / 2},${springY} A${w / 2},${w / 2} 0 0 1 ${cx + w / 2},${springY} L${cx + w / 2},${baseY + 40} Z`;
+      const rim = 22;
+      mk("path", {
+        d: `M${cx - w / 2 - rim},${baseY + 40} L${cx - w / 2 - rim},${springY} A${w / 2 + rim},${w / 2 + rim} 0 0 1 ${cx + w / 2 + rim},${springY} L${cx + w / 2 + rim},${baseY + 40} Z`,
+        fill: p.soil ?? "#2a2320", opacity: "0.9",
+      }, grp);
+      mk("path", { d: arch, fill: p.hole ?? "#05070b" }, grp);
+      mk("path", { d: arch, fill: "none", stroke: p.chalk, "stroke-width": 3, opacity: "0.1" }, grp);
+      // 门口那块平平的大石头（上面盖着一层雪）
+      const sx = cx + w * 0.62, sy = baseY - 10;
+      mk("ellipse", { cx: sx, cy: sy + 8, rx: 46, ry: 12, fill: p.hole ?? "#080b10", opacity: "0.35" }, grp);
+      mk("ellipse", { cx: sx, cy: sy, rx: 60, ry: 26, fill: p.stone ?? "#2b3644" }, grp);
+      mk("ellipse", { cx: sx - 12, cy: sy - 9, rx: 34, ry: 13, fill: p.stoneLit ?? "#3a4756", opacity: "0.6" }, grp);
+      mk("ellipse", { cx: sx, cy: sy - 13, rx: 56, ry: 11, fill: snow, opacity: "0.9" }, grp);
+      // 冰凌：从拱门上方挂下来
+      for (let i = 0; i < (L.icicles ?? 7); i++) {
+        const ix = cx - w / 2 + 16 + rnd(i + 20) * (w - 32);
+        const len = 14 + rnd(i + 30) * 40;
+        const iy = springY - Math.sqrt(Math.max(0, (w / 2) ** 2 - (ix - cx) ** 2)) + 4;
+        mk("path", {
+          d: `M${ix.toFixed(1)},${iy.toFixed(1)} l${(1.4 + rnd(i + 40) * 1.8).toFixed(1)},${len.toFixed(1)} l${(1.4 + rnd(i + 50) * 1.8).toFixed(1)},${(-len).toFixed(1)} Z`,
+          fill: p.ice ?? p.chalk ?? "#dfe6e8", opacity: (0.45 + rnd(i + 60) * 0.3).toFixed(2),
+        }, grp);
+      }
+      // 脚边的一层雪，把丘和雪地接上（别留一道硬边）
+      mk("ellipse", { cx: cx, cy: baseY + 22, rx: hw * 0.96, ry: 34, fill: snow, opacity: "0.95" }, grp);
+      R.burrow = grp;
+    },
+
+    oakLanterns(g, L, p, f, R) {
+      // 老橡树 + 挂满一树的灯。每盏灯 = 吊线 + 灯体 + 一圈光，灯体在 R.treeLights 里（配 lightsIn 逐盏亮起来）
+      const x = L.x ?? 1300, baseY = L.baseY ?? 1010;
+      const topY = L.topY ?? 300;
+      const grp = mk("g", { filter: f.wob }, g);
+      crayon(grp, `M${x - 76},${baseY + 30} C${x - 62},${baseY - 260} ${x - 46},${baseY - 420} ${x - 34},${baseY - 560}
+        L${x + 38},${baseY - 560} C${x + 54},${baseY - 400} ${x + 72},${baseY - 220} ${x + 88},${baseY + 30} Z`,
+        p.trunk ?? "#241d18", 4, { tintOpacity: 0.03 });
+      // 枝：四散
+      [[-1, 0.52, 420], [1, 0.58, 470], [-1, 0.76, 360], [1, 0.82, 400], [-1, 0.94, 250], [1, 0.96, 280]].forEach(([d, t, len], i) => {
+        const by = baseY - (baseY - topY) * t;
+        mk("path", {
+          d: `M${x + d * 8},${by.toFixed(0)} C${(x + d * len * 0.42).toFixed(0)},${(by - 40).toFixed(0)} ${(x + d * len * 0.76).toFixed(0)},${(by - 56).toFixed(0)} ${(x + d * len).toFixed(0)},${(by - 92).toFixed(0)}`,
+          stroke: p.trunk ?? "#241d18", "stroke-width": (20 - i * 2.6).toFixed(1), fill: "none", "stroke-linecap": "round",
+        }, grp);
+      });
+      // 树冠：只留几团很薄的暗影，别挡住灯
+      for (let i = 0; i < (L.clumps ?? 10); i++) {
+        mk("ellipse", {
+          cx: x + (rnd(i + 60) - 0.5) * 980, cy: topY + 20 + rnd(i + 70) * 210,
+          rx: 150 + rnd(i + 80) * 160, ry: 42 + rnd(i + 90) * 40,
+          fill: p.crown ?? "#1c2a22", opacity: (0.3 + rnd(i + 100) * 0.3).toFixed(2),
+        }, grp);
+      }
+      // 灯
+      const lights = mk("g", {}, grp);
+      const pts = L.lights || [];
+      const kinds = L.kinds || {};
+      pts.forEach(([lx, ly, kind], i) => {
+        const k = kinds[kind] || kind || "paper";
+        const s2 = 0.8 + rnd(i + 120) * 0.5;
+        const g2 = mk("g", {}, lights);
+        // 吊线
+        mk("path", { d: `M${lx},${ly - 26 * s2} L${lx},${ly - 8 * s2}`, stroke: p.trunk ?? "#241d18", "stroke-width": 2, opacity: "0.7" }, g2);
+        // 光（径向渐变，不是同心椭圆）
+        const dEl3 = g.ownerSVGElement && g.ownerSVGElement.querySelector("defs");
+        const lg = radial(dEl3, `lantern-${Math.round(lx)}-${Math.round(ly)}`,
+          [["0%", p.flameCore ?? "#f2ce86", 0.5], ["30%", p.lamp ?? "#f16d16", 0.34], ["70%", p.lamp ?? "#f16d16", 0.1], ["100%", p.lamp ?? "#f16d16", 0]]);
+        mk("ellipse", { cx: lx, cy: ly + 6 * s2, rx: 62 * s2, ry: 54 * s2, fill: lg || (p.lamp ?? "#f16d16"), opacity: lg ? 0.9 : 0.1 }, g2);
+        // 灯体
+        if (k === "ice") {
+          mk("path", { d: `M${lx},${ly - 20 * s2} L${lx + 16 * s2},${ly + 4 * s2} L${lx},${ly + 28 * s2} L${lx - 16 * s2},${ly + 4 * s2} Z`, fill: p.ice ?? "#dfe6e8", opacity: "0.75" }, g2);
+          mk("path", { d: `M${lx},${ly - 8 * s2} L${lx + 8 * s2},${ly + 4 * s2} L${lx},${ly + 16 * s2} L${lx - 8 * s2},${ly + 4 * s2} Z`, fill: p.lamp ?? "#f16d16", opacity: "0.85" }, g2);
+        } else if (k === "bottle") {
+          mk("rect", { x: lx - 10 * s2, y: ly - 14 * s2, width: 20 * s2, height: 34 * s2, rx: 8 * s2, fill: p.glass ?? "#cfd8cf", opacity: "0.55" }, g2);
+          mk("rect", { x: lx - 5 * s2, y: ly - 6 * s2, width: 10 * s2, height: 20 * s2, rx: 5 * s2, fill: p.lamp ?? "#f16d16", opacity: "0.9" }, g2);
+        } else if (k === "root") {
+          mk("ellipse", { cx: lx, cy: ly + 4 * s2, rx: 17 * s2, ry: 21 * s2, fill: p.lampBody ?? "#f2ce86" }, g2);
+          mk("path", { d: `M${lx - 4 * s2},${ly - 16 * s2} l${3 * s2},${-12 * s2} l${4 * s2},${10 * s2} Z`, fill: p.crown ?? "#1c2a22" }, g2);
+          mk("ellipse", { cx: lx, cy: ly + 6 * s2, rx: 8 * s2, ry: 10 * s2, fill: p.lamp ?? "#f16d16", opacity: "0.8" }, g2);
+        } else if (k === "copper") {
+          mk("path", { d: `M${lx - 12 * s2},${ly - 12 * s2} L${lx + 12 * s2},${ly - 12 * s2} L${lx + 15 * s2},${ly + 20 * s2} C${lx + 15 * s2},${ly + 24 * s2} ${lx - 15 * s2},${ly + 24 * s2} ${lx - 15 * s2},${ly + 20 * s2} Z`, fill: p.copper ?? "#8a5a34" }, g2);
+          mk("path", { d: `M${lx - 10 * s2},${ly - 12 * s2} C${lx - 12 * s2},${ly - 34 * s2} ${lx + 12 * s2},${ly - 34 * s2} ${lx + 10 * s2},${ly - 12 * s2}`, stroke: p.copperLit ?? "#c98a4a", "stroke-width": 2.8 * s2, fill: "none" }, g2);
+          mk("ellipse", { cx: lx, cy: ly + 6 * s2, rx: 7 * s2, ry: 9 * s2, fill: p.lamp ?? "#f16d16" }, g2);
+        } else {
+          // 纸折的小灯笼
+          mk("ellipse", { cx: lx, cy: ly + 4 * s2, rx: 19 * s2, ry: 22 * s2, fill: p.lampBody ?? "#f2ce86" }, g2);
+          mk("path", { d: `M${lx - 14 * s2},${ly + 4 * s2} q${14 * s2},${-8 * s2} ${28 * s2},0`, stroke: p.lamp ?? "#f16d16", "stroke-width": 2.4 * s2, fill: "none", opacity: "0.7" }, g2);
+          mk("ellipse", { cx: lx, cy: ly + 4 * s2, rx: 8 * s2, ry: 12 * s2, fill: p.lamp ?? "#f16d16", opacity: "0.85" }, g2);
+        }
+      });
+      R.treeLights = lights;
+      R.oak = grp;
+    },
+
+    darkness(g, L, p, f, R) {
+      // 一下子全黑：一层盖满画面的黑，配 darken 动作（别用 opacity 调单个元素）
+      const grp = mk("g", {}, g);
+      const el = mk("rect", {
+        x: -400, y: -400, width: 2720, height: 1900,
+        fill: L.colour ?? p.dark ?? "#141210", opacity: L.op ?? 0.9,
+      }, grp);
+      R.dark = el;
+    },
+
+    lampPool(g, L, p, f, R) {
+      // 灯照在雪地上的一小圈：一个径向渐变（外圈透明），配 poolSwell 长大
+      const x = L.x ?? 900, y = L.y ?? 1000;
+      const host = mk("g", { transform: `translate(${x},${y})` }, g);
+      const el = mk("g", {}, host);
+      const rx = L.rx ?? 320, ry = L.ry ?? 58, op = L.op ?? 0.3;
+      const glow = L.glow ?? p.lampGlow ?? "#f2ce86";
+      const core = L.core ?? p.lamp ?? "#f16d16";
+      const defsEl = g.ownerSVGElement && g.ownerSVGElement.querySelector("defs");
+      const fill = radial(defsEl, `pool-${Math.round(x)}-${Math.round(y)}-${rx}`,
+        [["0%", core, 0.42], ["34%", glow, 0.34], ["68%", glow, 0.12], ["100%", glow, 0]]);
+      mk("ellipse", { cx: 0, cy: 0, rx, ry, fill: fill || glow, opacity: fill ? op : op * 0.5 }, el);
+      R.pool = el; R.poolHost = host;
+    },
+
+    pineRow(g, L, p, f, R) {
+      // 远处的一排小松：雾里的林线（比 farbank 那道锯齿更像森林）
+      const grp = mk("g", {}, g);
+      const y = L.y ?? 770, n = L.count ?? 26;
+      const col = L.colour ?? p.farTree ?? p.crown ?? "#1c2a22";
+      const op = (L.op ?? 0.75).toFixed(2);
+      for (let i = 0; i < n; i++) {
+        const x = (L.from ?? -260) + (i / n) * (L.span ?? 2500) + (rnd(i + 10) - 0.5) * 60;
+        const h = (L.h ?? 96) + rnd(i + 20) * (L.hVar ?? 84);
+        const w = h * (0.32 + rnd(i + 30) * 0.1);
+        const by = y + rnd(i + 40) * 10;
+        mk("path", {
+          d: `M${x.toFixed(0)},${(by - h).toFixed(0)} L${(x + w / 2).toFixed(0)},${by.toFixed(0)} Q${x.toFixed(0)},${(by - h * 0.22).toFixed(0)} ${(x - w / 2).toFixed(0)},${by.toFixed(0)} Z`,
+          fill: col, opacity: op,
+        }, grp);
+        mk("path", {
+          d: `M${x.toFixed(0)},${(by - h).toFixed(0)} L${(x + w * 0.2).toFixed(0)},${(by - h * 0.45).toFixed(0)} Q${x.toFixed(0)},${(by - h * 0.56).toFixed(0)} ${(x - w * 0.2).toFixed(0)},${(by - h * 0.45).toFixed(0)} Z`,
+          fill: L.snow ?? p.snowLit ?? "#f4efe2", opacity: (L.snowOp ?? 0.5).toFixed(2),
+        }, grp);
+      }
+      R.pineRow = grp;
+    },
+
+    bareTree(g, L, p, f, R) {
+      // 冬天落叶的树：一根主干分两三杈，枝上压着一条雪。用来给画面做前景/背景框。
+      const grp = mk("g", { filter: f.wob }, g);
+      const x = L.x ?? 300, baseY = L.baseY ?? 1010;
+      const h = L.h ?? 620, spread = L.spread ?? 300;
+      const col = L.colour ?? p.trunk ?? "#241d18";
+      const snow = L.snow ?? p.snowLit ?? "#f4efe2";
+      const branches = [];
+      // 主干（上细下粗）
+      crayon(grp, `M${x - 26},${baseY + 20} C${x - 20},${baseY - h * 0.34} ${x - 14},${baseY - h * 0.6} ${x - 9},${baseY - h * 0.78}
+        L${x + 11},${baseY - h * 0.78} C${x + 16},${baseY - h * 0.58} ${x + 22},${baseY - h * 0.32} ${x + 28},${baseY + 20} Z`,
+        col, 3, { tintOpacity: 0.02 });
+      // 分杈：先算路径，再用同一条路径画枝 + 压在上面的一条雪（各画各的会"飘"）
+      const N = L.forks ?? 3;
+      for (let i = 0; i < N; i++) {
+        const t = 0.5 + i * 0.15;
+        const by = baseY - h * t;
+        const d = i % 2 === 0 ? -1 : 1;
+        const len = spread * (1 - i * 0.14);
+        const tx = x + d * len, ty = by - h * 0.3;
+        const dPath = `M${(x + d * 4).toFixed(0)},${by.toFixed(0)} C${(x + d * len * 0.4).toFixed(0)},${(by - h * 0.06).toFixed(0)} ${(x + d * len * 0.72).toFixed(0)},${(ty + h * 0.1).toFixed(0)} ${tx.toFixed(0)},${ty.toFixed(0)}`;
+        const w = 13 - i * 2.4;
+        mk("path", { d: dPath, stroke: col, "stroke-width": w.toFixed(1), fill: "none", "stroke-linecap": "round" }, grp);
+        mk("path", {
+          d: dPath, stroke: snow, "stroke-width": Math.max(w * 0.42, 1.6).toFixed(1), fill: "none",
+          "stroke-linecap": "round", opacity: (L.snowOp ?? 0.6).toFixed(2), transform: "translate(0,-3.5)",
+        }, grp);
+        branches.push([x + d * 4, by, tx, ty]);
+        // 小杈（也带雪）
+        for (let k = 0; k < 2; k++) {
+          const sc = 0.55 + k * 0.3;
+          const bx = x + d * len * sc, by2 = by - h * 0.16 * sc;
+          const ex = bx + d * len * 0.26, ey = by2 - h * 0.15;
+          const sp = `M${bx.toFixed(0)},${by2.toFixed(0)} L${ex.toFixed(0)},${ey.toFixed(0)}`;
+          mk("path", { d: sp, stroke: col, "stroke-width": (6 - i - k).toFixed(1), fill: "none", "stroke-linecap": "round" }, grp);
+          mk("path", { d: sp, stroke: snow, "stroke-width": (2.2 - k * 0.5).toFixed(1), fill: "none", "stroke-linecap": "round", opacity: (L.snowOp ?? 0.6).toFixed(2), transform: "translate(0,-3)" }, grp);
+        }
+      }
+      R.bareTree = grp;
+    },
+
+    tracks(g, L, p, f, R) {
+      // 雪地上的一串脚印：从近处走向远处，越远越小（"通向老橡树"）
+      const grp = mk("g", {}, g);
+      const n = L.count ?? 9;
+      const x0 = L.x0 ?? 700, y0 = L.y0 ?? 1050, x1 = L.x1 ?? 1150, y1 = L.y1 ?? 860;
+      const col = L.colour ?? p.track ?? "#b9b2a2";
+      const els = [];
+      for (let i = 0; i < n; i++) {
+        const t = n > 1 ? i / (n - 1) : 0;
+        const cx = x0 + (x1 - x0) * t + (rnd(i + 10) - 0.5) * 26;
+        const cy = y0 + (y1 - y0) * t;
+        const s2 = 1 - t * 0.55;
+        const el = mk("g", {}, grp);
+        // 一只脚两个印：前掌小圆 + 后跟横条（比一坨椭圆像脚印）
+        mk("ellipse", { cx: cx.toFixed(1), cy: cy.toFixed(1), rx: (13 * s2).toFixed(1), ry: (10 * s2).toFixed(1), fill: col, opacity: "0.5" }, el);
+        mk("ellipse", { cx: (cx - 1 * s2).toFixed(1), cy: (cy + 13 * s2).toFixed(1), rx: (9 * s2).toFixed(1), ry: (6 * s2).toFixed(1), fill: col, opacity: "0.4" }, el);
+        els.push(el);
+      }
+      R.tracks = els;
+    },
   };
 
   // ---------- 角色 ----------
@@ -748,6 +1071,44 @@ window.WORLD = (() => {
       const c = chestnut(g, { x: C.x, y: C.y, id: C.id, size: C.size ?? 1, opacity: C.opacity ?? 1,
         shadow: p.shadow, shadowOp: p.shadowOp ?? 0.35, shell: p.chest });
       return { g: c.g, body: c.body, seam: c.seam };
+    },
+    // ---- 冬日角色（小獾那一类故事）
+    badger(g, C, p, R) {
+      const b = badger(g, { x: C.x, y: C.y, id: C.id, size: C.size ?? 1, opacity: C.opacity ?? 1,
+        flip: !!C.flip, fur: C.fur ?? p.ink, furLight: C.furLight ?? p.furLight,
+        stripe: C.stripe ?? p.stripe, ink: C.ink ?? p.hole,
+        rim: C.rim ? (p.rim ?? p.lampGlow) : null,
+        shadow: p.shadow, shadowOp: p.shadowOp ?? 0.4 });
+      return { g: b.g, body: b.body };
+    },
+    fox(g, C, p, R) {
+      const f2 = fox(g, { x: C.x, y: C.y, id: C.id, size: C.size ?? 1, opacity: C.opacity ?? 1,
+        flip: !!C.flip, fur: C.fur ?? p.ink, furLight: C.furLight ?? p.furLight,
+        pale: C.pale ?? p.stripe, ink: C.ink ?? p.hole,
+        rim: C.rim ? (p.rim ?? p.lampGlow) : null,
+        shadow: p.shadow, shadowOp: p.shadowOp ?? 0.4 });
+      return { g: f2.g, body: f2.body, tail: f2.tail };
+    },
+    rabbit(g, C, p, R) {
+      const r = rabbit(g, { x: C.x, y: C.y, id: C.id, size: C.size ?? 1, opacity: C.opacity ?? 1,
+        flip: !!C.flip, fur: C.fur ?? p.ink, furLight: C.furLight ?? p.furLight,
+        pale: C.pale ?? p.stripe, ink: C.ink ?? p.hole,
+        shadow: p.shadow, shadowOp: p.shadowOp ?? 0.35 });
+      return { g: r.g, body: r.body };
+    },
+    copperLamp(g, C, p, R) {
+      const l = copperLamp(g, { x: C.x, y: C.y, id: C.id, size: C.size ?? 1, opacity: C.opacity ?? 1,
+        copper: C.copper ?? p.copper, copperLit: C.copperLit ?? p.copperLit,
+        glow: C.glow ?? p.lamp, core: C.core ?? p.flameCore, lampOp: C.lampOp,
+        shadow: p.shadow, shadowOp: C.shadowOp ?? p.shadowOp ?? 0.35 });
+      return { g: l.g, body: l.body, lamp: l.lamp, flame: l.flame };
+    },
+    hurricaneLamp(g, C, p, R) {
+      const l = hurricaneLamp(g, { x: C.x, y: C.y, id: C.id, size: C.size ?? 1, opacity: C.opacity ?? 1,
+        metal: C.metal ?? p.ink, metalLit: C.metalLit ?? p.copperLit,
+        glass: C.glass ?? p.lampBody, glow: C.glow ?? p.lamp, core: C.core ?? p.flameCore,
+        lampOp: C.lampOp, shadow: p.shadow, shadowOp: C.shadowOp ?? p.shadowOp ?? 0.4 });
+      return { g: l.g, body: l.body, lamp: l.lamp, flame: l.flame };
     },
   };
 
@@ -797,12 +1158,12 @@ window.WORLD = (() => {
           case "cam": camFocus(t, o.dur ?? 5, o.scale, o.focus[0], o.focus[1], o.ease, o.from); break;
           case "camFrom": camFocus(t, o.dur ?? 5, o.scale, o.focus[0], o.focus[1], o.ease, o.from); break;
           case "move": { const e = el(o.target); if (e) tl.to(e, { x: o.x ?? 0, y: o.y ?? 0, duration: o.dur ?? 2, ease: o.ease ?? "power2.inOut" }, t); break; }
-          case "fade": { const e = el(o.target); if (e) tl.fromTo(e, { opacity: o.from ?? 0 }, { opacity: o.to ?? 1, duration: o.dur ?? 1, ease: o.ease ?? "power2.out" }, t); break; }
+          case "fade": { const e = el(o.target); if (e) tl.fromTo(e, { opacity: o.from ?? 0 }, { opacity: o.to ?? 1, duration: o.dur ?? 1, ease: o.ease ?? "power2.out", immediateRender: false }, t); break; }
           case "scale": { const e = el(o.target); if (e) tl.fromTo(e, { scale: o.from ?? 1 }, { scale: o.to ?? 1.2, duration: o.dur ?? 2, ease: o.ease ?? "power2.out", transformOrigin: o.origin ?? "50% 50%" }, t); break; }
           case "rise": {  // 角色登场：升起来 + 一个小过冲
             const c = R[o.target]; if (!c) break;
             tl.fromTo(c.g, { opacity: 0, y: o.fromY ?? 52, scale: o.fromScale ?? 0.9 },
-              { opacity: 1, y: 0, scale: 1, duration: o.dur ?? 1.6, ease: "power2.out" }, t);
+              { opacity: 1, y: 0, scale: 1, duration: o.dur ?? 1.6, ease: "power2.out", immediateRender: false }, t);
             break;
           }
           case "flap": {   // 翅膀：scaleY 抖动（别用 rotation，pivot 会跑）
@@ -871,7 +1232,7 @@ window.WORLD = (() => {
           case "poolGrow": { if (R.pool) tl.fromTo(R.pool, { scale: o.from ?? 1 }, { scale: o.to ?? 1.25, duration: o.dur ?? 3, ease: "power2.out", transformOrigin: "0px 0px" }, t); break; }
           case "duskRise": { if (R.dusk) tl.fromTo(R.dusk, { y: o.fromY ?? 620 }, { y: 0, duration: o.dur ?? 6, ease: "power2.inOut" }, t); break; }
           case "lightsIn": (R.treeLights ? Array.from(R.treeLights.children) : []).forEach((c2, i) => {
-            tl.fromTo(c2, { opacity: 0 }, { opacity: (0.35 + rnd(i + 950) * 0.55).toFixed(2), duration: o.dur ?? 1.5, ease: "power2.out" }, t + rnd(i + 51) * (o.spread ?? 11));
+            tl.fromTo(c2, { opacity: 0 }, { opacity: (0.35 + rnd(i + 950) * 0.55).toFixed(2), duration: o.dur ?? 1.5, ease: "power2.out", immediateRender: false }, t + rnd(i + 51) * (o.spread ?? 11));
           }); break;
           case "wingOpen": { const c = R[o.target]; if (!c) break;
             [c.wingL, c.wingR].forEach((w) => w && tl.to(w, { scale: o.scale ?? 1.45, duration: o.dur ?? 1.4, ease: "power2.out" }, t));
@@ -941,6 +1302,61 @@ window.WORLD = (() => {
           case "shiver": {  // 抖一下（雨里/心里闷的时候）
             const c = R[o.target]; if (!c) break;
             tl.to(c.body, { x: o.amp ?? 4, duration: 0.16, yoyo: true, repeat: o.repeat ?? 6, ease: "sine.inOut" }, t);
+            break;
+          }
+
+          // ---- 冬日（雪 / 灯）
+          case "snowfall": {
+            (R.snow || []).forEach((it, i) => {
+              const d = (o.dur ?? 13) * (0.75 + rnd(i + 7) * 0.6);
+              tl.fromTo(it.el, { y: -60 }, { y: o.fall ?? 1160, duration: d, ease: "none", repeat: o.repeat ?? 40 }, t + rnd(i + 3) * (o.spread ?? 10));
+              tl.fromTo(it.el, { x: 0 }, { x: (o.drift ?? 44) * (rnd(i + 5) > 0.5 ? 1 : -1), duration: d * 0.42, yoyo: true, repeat: (o.repeat ?? 40) * 2, ease: "sine.inOut" }, t + rnd(i + 9) * 6);
+            });
+            break;
+          }
+          case "darken": {   // 一层黑压下来（或退下去）
+            if (!R.dark) break;
+            tl.fromTo(R.dark, { opacity: o.from ?? 0.9 }, { opacity: o.to ?? 0.96, duration: o.dur ?? 2.4, ease: o.ease ?? "power2.inOut" }, t);
+            break;
+          }
+          case "poolSwell": {  // 光池长大/缩小
+            if (!R.pool) break;
+            tl.fromTo(R.pool, { scale: o.from ?? 0.3, opacity: o.fromOp ?? 0.2 },
+              { scale: o.to ?? 1, opacity: o.toOp ?? 1, duration: o.dur ?? 2.4, ease: o.ease ?? "power2.out", transformOrigin: "50% 50%" }, t);
+            break;
+          }
+          case "flicker": {   // 火苗被风吹得歪了一下（scaleX/scaleY，不用 rotation）
+            const c = R[o.target]; if (!c || !c.flame) break;
+            const n = o.n ?? 3;
+            for (let i = 0; i < n; i++) {
+              const at = t + i * (o.gap ?? 1.6);
+              tl.to(c.flame, { scaleX: o.sx ?? 0.66, scaleY: o.sy ?? 1.16, duration: 0.28, ease: "sine.inOut", transformOrigin: "50% 100%" }, at);
+              tl.to(c.flame, { scaleX: 1, scaleY: 1, duration: 0.34, ease: "sine.inOut", transformOrigin: "50% 100%" }, at + 0.3);
+              tl.to(c.flame, { opacity: o.dim ?? 0.72, duration: 0.3, ease: "sine.inOut" }, at);
+              tl.to(c.flame, { opacity: 1, duration: 0.36, ease: "sine.inOut" }, at + 0.32);
+            }
+            break;
+          }
+          case "tracksIn": {   // 脚印一步一步印出来
+            (R.tracks || []).forEach((el, i) => {
+              tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: o.dur ?? 0.5, ease: "power1.out", immediateRender: false }, t + i * (o.step ?? 0.34));
+            });
+            break;
+          }
+          case "lampLit": {    // 灯重新亮起来（从没有到有，带一下过冲）
+            const c = R[o.target]; if (!c || !c.lamp) break;
+            tl.fromTo(c.lamp, { opacity: o.from ?? 0, scale: 0.72 },
+              { opacity: o.to ?? 1, scale: 1, duration: o.dur ?? 1.5, ease: "power2.out", transformOrigin: "50% 100%", immediateRender: false }, t);
+            break;
+          }
+          case "swayTree": {   // 一树灯轻轻晃
+            if (!R.treeLights) break;
+            Array.from(R.treeLights.children).forEach((c2, i) => {
+              tl.fromTo(c2, { rotation: -1.1 }, {
+                rotation: 1.3, duration: 2.6 + (i % 4) * 0.5, yoyo: true, repeat: o.repeat ?? 6,
+                ease: "sine.inOut", transformOrigin: "50% 0%",
+              }, t + i * (o.step ?? 0.18));
+            });
             break;
           }
           default: console.warn(`[ops] 未知动作 ${o.op}`);
