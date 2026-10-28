@@ -14,31 +14,67 @@
 bash scripts/setup.sh
 source env.sh
 
-# 2. 配音服务（Edge-TTS，走微软云端，无 GPU / 无 API Key）
+# 2. 配色库（必须：颜色只能取自 handraw-style 的 C-01–C-36）
+git clone https://github.com/yang0/handraw-style ~/.workbuddy-ai/skills/handraw-style
+python3 scripts/color_lib.py --list          # 能列出 36 色就通了
+
+# 3. 配音服务（Edge-TTS，走微软云端，无 GPU / 无 API Key）
 bash scripts/fetch_easyvoice.sh
 cd vendor/easyVoice/packages/backend && PORT=3000 npx tsx src/server.ts &
 
-# 3. 建项目（故事文本进来）
+# 4. 建项目（故事文本进来）
 python3 scripts/new_project.py --name 小萤火虫 --dir ./projects/firefly --story 故事.md
 
-# 4. 按 SKILL.md 的规则填 film.json（分镜/配色/镜头），然后：
-python3 scripts/build_film.py   --project ./projects/firefly   # film.json → 合成
-python3 scripts/make_voice.py   --project ./projects/firefly   # 逐句配音
-python3 scripts/make_audio.py   --project ./projects/firefly   # 程序化配乐
-npx hyperframes check --json                                   # lint
+# 5. 按 SKILL.md 的规则填 film.json（分镜/色号/镜头），然后：
+python3 scripts/build_film.py    --project ./projects/firefly --strict-palette  # film.json → 合成
+python3 scripts/make_voice.py    --project ./projects/firefly   # 逐句配音
+python3 scripts/make_audio.py    --project ./projects/firefly   # 程序化配乐
+python3 scripts/check_framing.py --project ./projects/firefly   # 构图：人物有没有被字幕压住
+npx hyperframes check --json                                    # lint
 HF_SEGMENTED_CAPTURE=true npx -y hyperframes render --resume -q delivery --workers 3
 python3 scripts/qa_check.py --project . --video "renders/片名.mp4"   # QA + 自修提示
 ```
+
+## 配色：只能用 handraw-style 的 C-01–C-36
+
+**`film.json` 里不许出现 `#rrggbb`。** 所有颜色写色号（`"C-34"`），由 `build_film.py`
+在构建时解析成 hex；`--strict-palette` 发现自定义色直接退出。
+
+理由：手写 hex 会不自觉地滑回"深蓝 + 粉笔白"那套默认值，片子越做越像模板。
+色号是**受限选择**，逼你在 36 色里做取舍。全片只留一个"最亮/最饱和"的色给光。
+
+| 工具 | 用途 |
+| --- | --- |
+| `scripts/color_lib.py --list` | 列 36 色色号 + hex |
+| `scripts/color_lib.py --resolve C-34,C-25` | 查色号对应的 hex |
+| `scripts/color_lib.py --refresh` | 从 handraw-style 色卡图重新采样，刷新 `references/colors.json` |
+
+细节见 [references/palette-library.md](references/palette-library.md)（槽位对照、逐场换色板、字幕深浅）。
+
+## 构图：人物不许被字幕压住
+
+**铁律：角色脚底在屏幕上的 y ≤ 784**（字幕带顶 843 再留 60 余量）。
+镜头 `focus.y` 要用 `at(scale, ground, screen_y)` 反算，别手填——手填就会有人物掉进字幕带。
+
+```bash
+python3 scripts/check_framing.py --project ./projects/firefly   # 检查：0 处压字才能渲染
+python3 scripts/solve_framing.py --project ./projects/firefly   # 求解：自动迭代修正 focus.y
+```
+
+`check_framing.py` 把每场的镜头关键帧和角色位移插值出来，算出"任意时刻人物在画面上的
+位置"，和字幕带求交；`solve_framing.py` 用同一套几何反向求解，几轮迭代即可归零。
 
 ## 它能自动做什么
 
 | 环节 | 做法 |
 | --- | --- |
+| 配色 | 色号受限选择（handraw-style C-01–C-36），`--strict-palette` 拦截自定义色 |
 | 逐句配音 | easyVoice(Edge-TTS)，暖声女声，**逐句配速对齐画面时间表**（偏差 ≤0.25s，换声音不用重剪） |
 | 声音底 | 程序化合成：溪水/虫鸣/风 + 八音盒摇篮曲（D 大调五声音阶，60 BPM），按情绪三档预设 |
-| 字幕 | 圆体（资源圆体，OFL），暖米白 + 预模糊光晕托底，断行避开「」 |
+| 字幕 | 圆体（资源圆体，OFL），暖米白 + 预模糊光晕托底，断行避开「」，按场次切深/浅字 |
 | 画面 | 参数化生成器：夜色自然场景（河/草/树/星空）+ 萤火虫/蜗牛等角色，**全片唯一暖色只给"光"** |
 | 蜡笔质感 | SVG feTurbulence 抖动 + 双笔触填充，线条自带手绘毛边 |
+| 构图 | 渲染前算出人物包围盒与字幕带的交叠，可自动求解修正 |
 | QA | 成片与浏览器渲染**逐行比对**抓视口裁切、响度/时长/字幕检查，给出修复动作 |
 
 ## 已知边界
@@ -77,6 +113,9 @@ bash scripts/setup.sh
 
 [examples/firefly](examples/firefly/film.json) —— 《小萤火虫的一粒光》：
 4 分 52 秒，8 场，34 句旁白，一首睡前故事改成的动画短片。
+
+这份 `film.json` 是**合规样板**：配色全为色号（`--strict-palette` 通过）、
+镜头 `focus.y` 按构图铁律反算（`check_framing.py` 0 处压字）。
 
 ## License
 

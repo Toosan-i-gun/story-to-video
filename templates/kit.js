@@ -6,7 +6,12 @@ window.KIT = (() => {
 
   const mk = (tag, attrs, parent) => {
     const el = document.createElementNS(NS, tag);
-    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    for (const k in attrs) {
+      // innerHTML 必须走属性，setAttribute("innerHTML", ...) 只会加一个同名 attribute，
+      // 滤镜（<filter> 里的 feTurbulence）就永远是空的 —— 空滤镜 = 元素整块不渲染。
+      if (k === "innerHTML") el.innerHTML = attrs[k];
+      else el.setAttribute(k, attrs[k]);
+    }
     if (parent) parent.appendChild(el);
     return el;
   };
@@ -198,5 +203,206 @@ window.KIT = (() => {
     return g;
   };
 
-  return { NS, mk, rnd, poly, leafPath, crayon, reed, firefly, snail };
+  // 小刺猬：朝右。背是一整片锯齿剪影（从地面长起来，不是"戴了顶刺帽子"），
+  // 前面伸出一张小尖脸。外层 <g> 定位，内层 .hg-body 给 GSAP 动（蜷成球动它）。
+  const hedgehog = (parent, o = {}) => {
+    const { x, y, id, size = 1, opacity = 1 } = o;
+    const sh = o.shadow ?? "#07090e", sho = o.shadowOp ?? 0.42;
+    const s = size;
+    const host = mk("g", { transform: `translate(${x},${y})` }, parent);
+    const g = mk("g", { id, opacity }, host);
+    mk("ellipse", { cx: 4 * s, cy: 2 * s, rx: 86 * s, ry: 9 * s, fill: sh, opacity: sho }, g);
+    const body = mk("g", { class: "hg-body" }, g);
+
+    const R0 = 46 * s, cx = 0, cy = -46 * s;
+
+    // ---- 刺：从右底角起，绕过头顶到左底角；一长一短交替，形成锯齿
+    const N = 40, pts = [[R0 * 0.96, -2 * s]];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N;
+      const a = Math.PI * (0.02 + 0.96 * t);
+      const rr = (i % 2 === 0 ? 1.22 : 1.03) * R0;
+      pts.push([cx + Math.cos(a) * rr, cy - Math.sin(a) * rr * 0.96]);
+    }
+    pts.push([-R0 * 0.96, -2 * s]);
+    crayon(body, poly(pts), "#2a2118", 2, { tintOpacity: 0.02 });
+
+    // ---- 刺上的一道亮边（蜡笔的笔触，让剪影不平）
+    let rim = "";
+    for (let i = 0; i <= N; i += 2) {
+      const t = i / N, a = Math.PI * (0.02 + 0.96 * t);
+      rim += `${i === 0 ? "M" : "L"}${(cx + Math.cos(a) * R0 * 1.2).toFixed(1)},${(cy - Math.sin(a) * R0 * 1.14).toFixed(1)} `;
+    }
+    mk("path", { d: rim, stroke: "#7a6448", "stroke-width": 2.6 * s, fill: "none", "stroke-linecap": "round", opacity: "0.4" }, body);
+
+    // ---- 里层：稍微亮一点的一团绒，让刺有厚度，不是一块死黑
+    mk("ellipse", { cx: 0, cy: cy + 8 * s, rx: R0 * 0.74, ry: R0 * 0.64, fill: "#2b231a" }, body);
+
+    // ---- 头：从刺里探出来的一小颗，前面接一个尖鼻子（脸不能大，大了就像熊）
+    mk("circle", { cx: R0 * 0.70, cy: -46 * s, r: R0 * 0.44, fill: "#3b2f24" }, body);
+    mk("path", {
+      d: `M${R0 * 0.84},${-64 * s} C${R0 * 1.10},${-58 * s} ${R0 * 1.30},${-44 * s} ${R0 * 1.38},${-30 * s}
+          C${R0 * 1.42},${-23 * s} ${R0 * 1.36},${-17 * s} ${R0 * 1.24},${-18 * s}
+          C${R0 * 1.06},${-21 * s} ${R0 * 0.94},${-34 * s} ${R0 * 0.82},${-48 * s} Z`,
+      fill: "#4a3a2b",
+    }, body);
+    // 鼻头
+    mk("ellipse", { cx: R0 * 1.36, cy: -22 * s, rx: 5 * s, ry: 4 * s, fill: "#100c08" }, body);
+    mk("ellipse", { cx: R0 * 1.37, cy: -23.4 * s, rx: 1.8 * s, ry: 1.3 * s, fill: "#7a6046", opacity: "0.7" }, body);
+    // 眼
+    mk("circle", { cx: R0 * 0.92, cy: -50 * s, r: 4.4 * s, fill: "#0b0906" }, body);
+    mk("circle", { cx: R0 * 0.94, cy: -51.4 * s, r: 1.5 * s, fill: "#f3ead9", opacity: "0.9" }, body);
+    // 耳
+    mk("circle", { cx: R0 * 0.56, cy: -72 * s, r: 7.5 * s, fill: "#2b221a" }, body);
+    mk("circle", { cx: R0 * 0.56, cy: -72 * s, r: 3.4 * s, fill: "#4a3a2b", opacity: "0.9" }, body);
+    // 爪
+    mk("ellipse", { cx: R0 * 1.10, cy: -5 * s, rx: 9 * s, ry: 5.6 * s, fill: "#3f3226" }, body);
+    mk("ellipse", { cx: R0 * 0.40, cy: -4 * s, rx: 10 * s, ry: 5.6 * s, fill: "#352a20" }, body);
+    return { g, body, head: body };
+  };
+
+  // 小松鼠：朝右。大尾巴在身后，droop 让尾巴尖垂下来（蓬蓬那天就垂着）
+  const squirrel = (parent, o = {}) => {
+    const { x, y, id, size = 1, opacity = 1, droop = false } = o;
+    const sh = o.shadow ?? "#07090e", sho = o.shadowOp ?? 0.4;
+    const s = size;
+    const host = mk("g", { transform: `translate(${x},${y})` }, parent);
+    const g = mk("g", { id, opacity }, host);
+    mk("ellipse", { cx: 0, cy: 3 * s, rx: 46 * s, ry: 7 * s, fill: sh, opacity: sho }, g);
+
+    // 尾巴：从臀部往上卷，垂的时候整条压低
+    const tailHost = mk("g", { transform: `translate(${-24 * s},${-26 * s})` }, g);
+    const tail = mk("g", { class: "sq-tail" }, tailHost);
+    mk("path", {
+      d: leafPath(0, 0, -66 * s, -50 * s, -54 * s, -128 * s, 46 * s, 0.32),
+      fill: "#4a3a29",
+    }, tail);
+    mk("path", {
+      d: leafPath(-4 * s, -12 * s, -54 * s, -54 * s, -44 * s, -112 * s, 26 * s, 0.4),
+      fill: "#5c4834", opacity: "0.55",
+    }, tail);
+
+    const body = mk("g", { class: "sq-body" }, g);
+    mk("ellipse", { cx: 0, cy: -46 * s, rx: 28 * s, ry: 40 * s, fill: "#4a3a29" }, body);
+    mk("ellipse", { cx: 6 * s, cy: -40 * s, rx: 17 * s, ry: 26 * s, fill: "#6b543c", opacity: "0.5" }, body);
+    mk("circle", { cx: 12 * s, cy: -96 * s, r: 25 * s, fill: "#4a3a29" }, body);
+    // 耳朵
+    mk("path", { d: `M${4 * s},${-114 * s} L${8 * s},${-136 * s} L${22 * s},${-118 * s} Z`, fill: "#4a3a29" }, body);
+    mk("path", { d: `M${24 * s},${-116 * s} L${36 * s},${-130 * s} L${36 * s},${-108 * s} Z`, fill: "#4a3a29" }, body);
+    // 脸
+    mk("path", {
+      d: `M${26 * s},${-104 * s} C${40 * s},${-100 * s} ${46 * s},${-92 * s} ${46 * s},${-86 * s}
+          C${46 * s},${-80 * s} ${34 * s},${-78 * s} ${26 * s},${-84 * s} Z`,
+      fill: "#6b543c",
+    }, body);
+    mk("circle", { cx: 45 * s, cy: -87 * s, r: 3.4 * s, fill: "#120e0a" }, body);
+    mk("circle", { cx: 32 * s, cy: -101 * s, r: 4 * s, fill: "#0b0906" }, body);
+    mk("circle", { cx: 33.4 * s, cy: -102.4 * s, r: 1.3 * s, fill: "#f3ead9", opacity: "0.85" }, body);
+    // 前爪
+    mk("ellipse", { cx: 20 * s, cy: -44 * s, rx: 7 * s, ry: 5 * s, fill: "#5c4834" }, body);
+    mk("ellipse", { cx: -4 * s, cy: -4 * s, rx: 10 * s, ry: 6 * s, fill: "#3f3123" }, body);
+    return { g, body, tail, eye: null };
+  };
+
+  // 小鼹鼠：从土里冒出来的圆团子，大鼻子，爪子上带土
+  const mole = (parent, o = {}) => {
+    const { x, y, id, size = 1, opacity = 1 } = o;
+    const sh = o.shadow ?? "#07090e", sho = o.shadowOp ?? 0.4;
+    const s = size;
+    const host = mk("g", { transform: `translate(${x},${y})` }, parent);
+    const g = mk("g", { id, opacity }, host);
+    mk("ellipse", { cx: 0, cy: 2 * s, rx: 62 * s, ry: 8 * s, fill: sh, opacity: sho }, g);
+    const body = mk("g", { class: "ml-body" }, g);
+    // 身子：一个拱起来的团（后腰高、前肩低）
+    mk("path", {
+      d: `M${-58 * s},0 C${-62 * s},${-44 * s} ${-34 * s},${-74 * s} ${0},${-74 * s}
+          C${34 * s},${-74 * s} ${58 * s},${-46 * s} ${56 * s},${-2 * s} Z`,
+      fill: "#3d3227",
+    }, body);
+    // 背上的高光（一层软一点的毛色）
+    mk("path", {
+      d: `M${-44 * s},${-10 * s} C${-46 * s},${-48 * s} ${-22 * s},${-64 * s} ${2 * s},${-63 * s}
+          C${28 * s},${-62 * s} ${42 * s},${-42 * s} ${40 * s},${-12 * s} Z`,
+      fill: "#544632", opacity: "0.5",
+    }, body);
+    mk("path", {
+      d: `M${-52 * s},${-6 * s} C${-56 * s},${-46 * s} ${-30 * s},${-70 * s} ${0},${-70 * s} C${24 * s},${-70 * s} ${44 * s},${-56 * s} ${50 * s},${-34 * s}`,
+      stroke: "#6f5b3f", "stroke-width": 2.6 * s, fill: "none", "stroke-linecap": "round", opacity: "0.35",
+    }, body);
+    // 头：一个往前探的圆，跟身子分得开
+    mk("circle", { cx: 30 * s, cy: -56 * s, r: 22 * s, fill: "#443729" }, body);
+    // 长鼻子（鼹鼠的招牌）
+    mk("path", {
+      d: `M${40 * s},${-64 * s} C${58 * s},${-60 * s} ${74 * s},${-50 * s} ${80 * s},${-40 * s}
+          C${84 * s},${-33 * s} ${78 * s},${-27 * s} ${70 * s},${-30 * s}
+          C${56 * s},${-34 * s} ${44 * s},${-44 * s} ${38 * s},${-52 * s} Z`,
+      fill: "#5c4b36",
+    }, body);
+    mk("ellipse", { cx: 78 * s, cy: -35 * s, rx: 8 * s, ry: 7 * s, fill: "#9c6a5c" }, body);
+    mk("ellipse", { cx: 79.5 * s, cy: -37 * s, rx: 3 * s, ry: 2.2 * s, fill: "#c78a78", opacity: "0.85" }, body);
+    // 鼻子上的土（刚从地底下钻出来）
+    [[84, -26, 2.6], [72, -24, 2], [80, -44, 1.8], [90, -32, 1.6], [66, -30, 1.5]].forEach(([dx, dy, r]) =>
+      mk("circle", { cx: dx * s, cy: dy * s, r: r * s, fill: "#6b5334", opacity: "0.8" }, body));
+    // 眼睛：两条眯起来的线（几乎看不见东西，但他笑了）
+    mk("path", { d: `M${28 * s},${-62 * s} q${5 * s},${-4 * s} ${10 * s},${-1 * s}`, stroke: "#140f0a", "stroke-width": 2.6 * s, fill: "none", "stroke-linecap": "round" }, body);
+    mk("path", { d: `M${44 * s},${-46 * s} q${7 * s},${6 * s} ${14 * s},${1 * s}`, stroke: "#1a130d", "stroke-width": 2.4 * s, fill: "none", "stroke-linecap": "round" }, body);
+    // 两只大爪子（挖土的）
+    mk("path", {
+      d: `M${30 * s},${-16 * s} C${44 * s},${-18 * s} ${56 * s},${-12 * s} ${56 * s},${-2 * s}
+          C${56 * s},${2 * s} ${30 * s},${2 * s} ${28 * s},${-4 * s} Z`,
+      fill: "#56472f",
+    }, body);
+    for (let i = 0; i < 3; i++)
+      mk("path", {
+        d: `M${(40 + i * 6) * s},${-14 * s} L${(38 + i * 6) * s},${-3 * s}`,
+        stroke: "#241c14", "stroke-width": 2.2 * s, "stroke-linecap": "round", opacity: "0.75",
+      }, body);
+    mk("ellipse", { cx: 2 * s, cy: -6 * s, rx: 15 * s, ry: 8 * s, fill: "#4a3d2c" }, body);
+    return { g, body, nose: null };
+  };
+
+  // 一颗栗子：圆圆的身子 + 壳上一道亮亮的缝（全片唯一暖色在这里）
+  const chestnut = (parent, o = {}) => {
+    const { x, y, id, size = 1, opacity = 1 } = o;
+    const sh = o.shadow ?? "#07090e", sho = o.shadowOp ?? 0.35;
+    const shell = o.shell ?? "#a9714f";
+    const s = size;
+    const host = mk("g", { transform: `translate(${x},${y})` }, parent);
+    const g = mk("g", { id, opacity }, host);
+    const body = mk("g", { class: "cs-body" }, g);
+    mk("ellipse", { cx: 0, cy: 3 * s, rx: 24 * s, ry: 5 * s, fill: sh, opacity: sho }, body);
+    mk("path", {
+      d: `M0,${-27 * s} C${13 * s},${-27 * s} ${24 * s},${-16 * s} ${24 * s},${-2 * s}
+          C${24 * s},${12 * s} ${14 * s},${22 * s} 0,${22 * s}
+          C${-14 * s},${22 * s} ${-24 * s},${12 * s} ${-24 * s},${-2 * s}
+          C${-24 * s},${-16 * s} ${-13 * s},${-27 * s} 0,${-27 * s} Z`,
+      fill: shell,
+    }, body);
+    mk("path", {
+      d: `M${-4 * s},${-26 * s} C${-2 * s},${-33 * s} ${2 * s},${-33 * s} ${4 * s},${-26 * s} Z`,
+      fill: "#7d4a30",
+    }, body);
+    // 壳底的暗面
+    mk("path", {
+      d: `M${-24 * s},${-2 * s} C${-24 * s},${12 * s} ${-14 * s},${22 * s} 0,${22 * s}
+          C${14 * s},${22 * s} ${24 * s},${12 * s} ${24 * s},${-2 * s}
+          C${20 * s},${12 * s} ${-20 * s},${12 * s} ${-24 * s},${-2 * s} Z`,
+      fill: "#8a5a3e", opacity: "0.55",
+    }, body);
+    // 那道缝：暖色，只在这里
+    const seam = mk("g", { class: "cs-seam" }, body);
+    mk("ellipse", { cx: 0, cy: -2 * s, rx: 22 * s, ry: 7 * s, fill: "#f6c445", opacity: "0.16" }, seam);
+    mk("path", {
+      d: `M${-19 * s},${-5 * s} C${-8 * s},${2 * s} ${8 * s},${1 * s} ${19 * s},${-7 * s}`,
+      stroke: "#f6c445", "stroke-width": 3.4 * s, fill: "none", "stroke-linecap": "round",
+    }, seam);
+    mk("path", {
+      d: `M${-16 * s},${-6 * s} C${-6 * s},${-0.5 * s} ${6 * s},${-1 * s} ${16 * s},${-7 * s}`,
+      stroke: "#ffe9a8", "stroke-width": 1.5 * s, fill: "none", "stroke-linecap": "round", opacity: "0.9",
+    }, seam);
+    return { g, body, seam };
+  };
+
+  return { NS, mk, rnd, poly, leafPath, crayon, reed, firefly, snail,
+           hedgehog, squirrel, mole, chestnut };
 })();

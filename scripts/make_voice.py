@@ -97,7 +97,7 @@ def main():
     for l in lines:
         raw = os.path.join(tmp, f"{l['id']}.mp3")
         if use_edge:
-            synth_edge(l["text"], a.voice, a.base_rate, a.pitch, raw)
+            synth_edge(a.api, l["text"], a.voice, a.base_rate, a.pitch, raw)
         else:
             synth_say(l["text"], raw, 152)
         probe[l["id"]] = dur_of(raw)
@@ -115,7 +115,7 @@ def main():
         best = None
         for _ in range(3):
             if use_edge:
-                synth_edge(l["text"], a.voice, rate, a.pitch, raw)
+                synth_edge(a.api, l["text"], a.voice, rate, a.pitch, raw)
             else:
                 synth_say(l["text"], raw, 152)
             process(raw, wav)
@@ -129,7 +129,7 @@ def main():
         rate, d, err = best
         if abs(err) > a.tolerance:
             if use_edge:
-                synth_edge(l["text"], a.voice, rate, a.pitch, raw)
+                synth_edge(a.api, l["text"], a.voice, rate, a.pitch, raw)
             else:
                 synth_say(l["text"], raw, 152)
             process(raw, wav)

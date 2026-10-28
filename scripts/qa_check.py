@@ -140,6 +140,20 @@ def main():
     mp4 = os.path.abspath(a.video)
     problems, notes = [], []
 
+    # 0. 构图：人物有没有被字幕压住（渲染前就该过，这里兜一次）
+    fr = sh([sys.executable, os.path.join(SKILL, "scripts", "check_framing.py"),
+             "--project", proj, "--json"])
+    try:
+        fj = json.loads(fr.stdout)
+        bad = [p for p in fj.get("problems", []) if p.get("over", 0) > 0]
+        if bad:
+            for p in bad:
+                problems.append(f"{p['line'] or p['scene']} 人物压字幕 {p['over']}px（check_framing）")
+        else:
+            notes.append("构图：人物没有压进字幕带")
+    except Exception:
+        notes.append("构图检查跳过（check_framing 没跑起来）")
+
     # 1. 时长 / 规格
     dur, w, h = video_meta(mp4)
     if abs(dur - film["total"]) > 0.5:

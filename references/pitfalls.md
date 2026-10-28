@@ -65,3 +65,37 @@
     `codec_type` 匹配要在 show_entries 里显式列出）；loudnorm 的 JSON 用
     `json.loads` 解析，别手写切片（引号会混进数字里）；glob 通配符必须用
     `glob.glob`（`os.path.expanduser` 不展开 `*`）。
+
+## 配色与构图（2026-10-28 补，都是真踩过的）
+
+27. **`mk()` 里传 `innerHTML` 必须走属性**：`setAttribute("innerHTML", ...)` 只会加一个同名 attribute，
+    `<filter>` 里永远没有 `feTurbulence` → 空滤镜 → **所有带 `filter: f.wob` 的图层整块不渲染**。
+    症状：天空、地面、树全没了，只剩草和角色。修：`if (k === "innerHTML") el.innerHTML = attrs[k]`。
+28. **每场第一个 `cam` 必须带 `from`（= 自己的 scale/focus）**。不钉住，第一帧会退回 `1.0 / 540`，
+    地面线掉到 y≈1010，人物整只埋进字幕带。这一条一次就能造成十几处压字。
+29. **地面线 ≤ 784**：`focus.y = ground - (screen_y - 540) / scale`。手填 focus.y 必翻车。
+30. `npx hyperframes` 偶尔会卡在缓存重装（`ENOTEMPTY: rename .../hyperframes`，npm 还会报
+    `CODEBUDDY_BROKER_DENY`）。别重试 npx：直接调缓存里的可执行文件
+    `$(ls -t ~/.npm/_npx/*/node_modules/.bin/hyperframes | head -1) snapshot|render ...`。
+31. `check_framing` / `solve_framing` 都要做**纵向出画裁剪**：角色整体在画布下方
+    （脚底 >1080）时不算压字，否则会误报几百 px；求解时对"正在出场/入场"的角色
+    （可见部分 < 一半）也别追——强压镜头会把 focus 推到画布外，构图反而坏掉。
+30. **浅色纸上，写死的深色阴影/斑块会变成黑水坑**：角色影、果子堆影、地面 patches、石头、
+    栗子壳、草色，全部要进色板（`p.shadow` / `p.shadowOp` / `p.patchA` / `p.patchOp` / `p.chest` / `p.bladeA`）。
+    影子颜色要比地面**深**（浅底上用米驼会变成一块白盘子）。
+31. **一部片子一份 palette = 全片一个时刻 = 长得像模板**。按场次给 `scene.palette`，白天/夜/晨分开。
+32. **一条字幕色不可能同时适配奶油白和普鲁士蓝**。用 `scene.captions.style`（dark-text / light-text），
+    `build_film.py` 会逐条注入颜色和深/浅两张托底贴图。
+33. **色号是受限选择**：`film.json` 写 `"C-34"`，`build_film.py` 解析成 hex，`--strict-palette` 拦自定义色。
+    别凭记忆写 hex —— 36 色的真实色值要从 handraw-style 的色卡图采样（`scripts/color_lib.py`）。
+
+## 声音（2026-10-28 补）
+
+34. **固定预设 = 声音版的套模板**。旧 `make_audio.py` 的三套预设每套都带溪水+蟋蟀，
+    结果"秋天的洞里"也在放河水和夏虫。现在必须写 `sound.scenes` 逐场列层，
+    没列的一律不出声；兜底只有 `wind` + `leaves`。
+35. **`--mood` 只管八音盒的写法**，不再决定有没有水声。想安静就减层数 + 压 `music.scenes`。
+36. **全片级缓冲区一定用 float32**：339s 立体声 float64 要 260MB，再叠一份音乐轨就会被系统
+    SIGKILL（exit 137，日志空白）。float32 + 原地 `*=` 就够。
+37. **`hash()` 在 Python 里对字符串是随机的**，别拿它做随机种子（每次跑出来的音效都不一样）。
+    用 `zlib.crc32(name.encode())`。

@@ -1,0 +1,261 @@
+{
+ "source": "handraw-style · C-01–C-36 经典单色主题色库",
+ "repo": "https://github.com/yang0/handraw-style",
+ "author": "yang0",
+ "version": "1.9.1",
+ "note": "hex 由色卡图 images/colors/C-xx.webp 中心区域中位色采样得到；色号是唯一事实来源，改色请换色号。",
+ "colors": {
+  "C-01": {
+   "name_zh": "克莱因蓝",
+   "name_en": "Klein Blue",
+   "category": "经典蓝系",
+   "quote": "纯粹之蓝 通向无限",
+   "hex": "#1149bf"
+  },
+  "C-02": {
+   "name_zh": "马若雷勒蓝",
+   "name_en": "Majorelle Blue",
+   "category": "经典蓝系",
+   "quote": "热带的阳光 也偏爱这抹蓝",
+   "hex": "#0a3087"
+  },
+  "C-03": {
+   "name_zh": "普鲁士蓝",
+   "name_en": "Prussian Blue",
+   "category": "经典蓝系",
+   "quote": "理性的深邃 沉淀思想",
+   "hex": "#0e233c"
+  },
+  "C-04": {
+   "name_zh": "钴蓝",
+   "name_en": "Cobalt Blue",
+   "category": "经典蓝系",
+   "quote": "清晰而充满生命力 日常亦可动人",
+   "hex": "#1b57b0"
+  },
+  "C-05": {
+   "name_zh": "群青",
+   "name_en": "Ultramarine",
+   "category": "经典蓝系",
+   "quote": "跨越时光的蓝 诗意而永恒",
+   "hex": "#0e2657"
+  },
+  "C-06": {
+   "name_zh": "孔雀蓝",
+   "name_en": "Peacock Blue",
+   "category": "经典蓝系",
+   "quote": "优雅而神秘 生而独特",
+   "hex": "#0e3d4d"
+  },
+  "C-07": {
+   "name_zh": "蒂芙尼蓝",
+   "name_en": "Tiffany Blue",
+   "category": "清新绿系",
+   "quote": "把美好封存 让日常闪闪发光",
+   "hex": "#78d3d4"
+  },
+  "C-08": {
+   "name_zh": "湖蓝",
+   "name_en": "Cerulean Blue",
+   "category": "清新绿系",
+   "quote": "盛夏的光影 让心也变得轻盈",
+   "hex": "#4fa2d8"
+  },
+  "C-09": {
+   "name_zh": "薄荷绿",
+   "name_en": "Mint Green",
+   "category": "清新绿系",
+   "quote": "清新的气息 让生活更干净",
+   "hex": "#8ac3a9"
+  },
+  "C-10": {
+   "name_zh": "鼠尾草绿",
+   "name_en": "Sage Green",
+   "category": "清新绿系",
+   "quote": "柔和的力量 让生活回归本真",
+   "hex": "#65755b"
+  },
+  "C-11": {
+   "name_zh": "祖母绿",
+   "name_en": "Emerald Green",
+   "category": "清新绿系",
+   "quote": "深邃而珍贵 映照出更好的自己",
+   "hex": "#104226"
+  },
+  "C-12": {
+   "name_zh": "橄榄绿",
+   "name_en": "Olive Green",
+   "category": "清新绿系",
+   "quote": "来自地中海的风 让生活更从容",
+   "hex": "#676739"
+  },
+  "C-13": {
+   "name_zh": "维罗纳绿",
+   "name_en": "Veronese Green",
+   "category": "古典红绿",
+   "quote": "古典的优雅 穿越时光而来",
+   "hex": "#8a9083"
+  },
+  "C-14": {
+   "name_zh": "森林绿",
+   "name_en": "Forest Green",
+   "category": "古典红绿",
+   "quote": "林间的宁静 让心灵回归自然",
+   "hex": "#11322c"
+  },
+  "C-15": {
+   "name_zh": "朱砂红",
+   "name_en": "Cinnabar Red",
+   "category": "古典红绿",
+   "quote": "东方的温度 点亮生活的诗意",
+   "hex": "#5e1b14"
+  },
+  "C-16": {
+   "name_zh": "中国红",
+   "name_en": "Chinese Red",
+   "category": "古典红绿",
+   "quote": "喜悦的色彩 连接每一个团圆",
+   "hex": "#9d2c1b"
+  },
+  "C-17": {
+   "name_zh": "勃艮第红",
+   "name_en": "Burgundy",
+   "category": "古典红绿",
+   "quote": "醇厚的时光 沉淀生活的品味",
+   "hex": "#360e15"
+  },
+  "C-18": {
+   "name_zh": "庞贝红",
+   "name_en": "Pompeian Red",
+   "category": "古典红绿",
+   "quote": "历史的回响 赋予当下新的力量",
+   "hex": "#792920"
+  },
+  "C-19": {
+   "name_zh": "玫瑰红",
+   "name_en": "Rose Red",
+   "category": "浪漫粉紫",
+   "quote": "热烈的浪漫 永不凋零",
+   "hex": "#6e1024"
+  },
+  "C-20": {
+   "name_zh": "洋红",
+   "name_en": "Magenta",
+   "category": "浪漫粉紫",
+   "quote": "自信的姿态 走向更大的世界",
+   "hex": "#840b3a"
+  },
+  "C-21": {
+   "name_zh": "珊瑚粉",
+   "name_en": "Coral Pink",
+   "category": "浪漫粉紫",
+   "quote": "海风的温柔 治愈所有疲惫",
+   "hex": "#e3756d"
+  },
+  "C-22": {
+   "name_zh": "灰粉",
+   "name_en": "Dusty Rose",
+   "category": "浪漫粉紫",
+   "quote": "温柔的力量 让日常更美好",
+   "hex": "#c7919a"
+  },
+  "C-23": {
+   "name_zh": "薰衣草紫",
+   "name_en": "Lavender",
+   "category": "浪漫粉紫",
+   "quote": "浪漫的宁静 让心灵自由呼吸",
+   "hex": "#574387"
+  },
+  "C-24": {
+   "name_zh": "帝王紫",
+   "name_en": "Imperial Purple",
+   "category": "浪漫粉紫",
+   "quote": "高贵的气度 成就非凡的自己",
+   "hex": "#271944"
+  },
+  "C-25": {
+   "name_zh": "爱马仕橙",
+   "name_en": "Hermès Orange",
+   "category": "暖阳大地",
+   "quote": "优雅的热爱 成就更好的自己",
+   "hex": "#f16d16"
+  },
+  "C-26": {
+   "name_zh": "柿子橙",
+   "name_en": "Persimmon Orange",
+   "category": "暖阳大地",
+   "quote": "温暖的时光 总是带来好心情",
+   "hex": "#b5451d"
+  },
+  "C-27": {
+   "name_zh": "那不勒斯黄",
+   "name_en": "Naples Yellow",
+   "category": "暖阳大地",
+   "quote": "柔和的光线 让平凡的日子也变得美好",
+   "hex": "#f2ce86"
+  },
+  "C-28": {
+   "name_zh": "芥末黄",
+   "name_en": "Mustard Yellow",
+   "category": "暖阳大地",
+   "quote": "复古的格调 让生活更有质感",
+   "hex": "#d09719"
+  },
+  "C-29": {
+   "name_zh": "赭石",
+   "name_en": "Ochre",
+   "category": "暖阳大地",
+   "quote": "大地的沉静 孕育永恒的美",
+   "hex": "#764024"
+  },
+  "C-30": {
+   "name_zh": "象牙白",
+   "name_en": "Ivory",
+   "category": "暖阳大地",
+   "quote": "纯粹而柔软 让心回归宁静",
+   "hex": "#e5dbd5"
+  },
+  "C-31": {
+   "name_zh": "佩恩灰",
+   "name_en": "Payne's Grey",
+   "category": "中性色系",
+   "quote": "冷静而深邃 沉淀思绪",
+   "hex": "#363f4a"
+  },
+  "C-32": {
+   "name_zh": "炭黑",
+   "name_en": "Charcoal Black",
+   "category": "中性色系",
+   "quote": "克制而有力 现代而坚定",
+   "hex": "#403c36"
+  },
+  "C-33": {
+   "name_zh": "暖灰",
+   "name_en": "Warm Grey",
+   "category": "中性色系",
+   "quote": "温和而耐看 让生活松弛下来",
+   "hex": "#94887c"
+  },
+  "C-34": {
+   "name_zh": "奶油白",
+   "name_en": "Cream White",
+   "category": "中性色系",
+   "quote": "轻柔而纯净 留下呼吸感",
+   "hex": "#f1eee3"
+  },
+  "C-35": {
+   "name_zh": "石板灰",
+   "name_en": "Slate Gray",
+   "category": "中性色系",
+   "quote": "理性而利落 充满建筑感",
+   "hex": "#605e5c"
+  },
+  "C-36": {
+   "name_zh": "米驼色",
+   "name_en": "Taupe",
+   "category": "中性色系",
+   "quote": "自然而高级 温柔又克制",
+   "hex": "#a28d74"
+  }
+ }
+}

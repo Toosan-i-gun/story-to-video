@@ -8,6 +8,8 @@ film.json 是唯一事实来源：时长、场景、镜头、字幕、配色全�
 import argparse, json, os, shutil, sys
 
 SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from color_lib import load as load_colors, deep_resolve
 
 SCENE_TMPL = """<template>
   <style>
@@ -111,13 +113,16 @@ CAPTIONS_TMPL = """<template>
       position: relative; max-width: 1420px; padding: 8px 34px;
       font-family: "Rounded", sans-serif; font-weight: 500;
       font-size: {size}px; line-height: 1.56; letter-spacing: 0.035em;
-      text-align: center; color: {colour}; opacity: 0;
-      text-shadow: 0 2px 2px rgba(6,12,22,.5), 0 5px 20px rgba(6,12,22,.55);
+      text-align: center; opacity: 0;
     }}
-    /* 预模糊的光晕贴图：34 条字幕也不带 filter/gradient，渲染不吃力 */
+    /* 预模糊的光晕贴图：每条字幕都不带 filter/gradient，渲染不吃力。
+       dark = 深色托底（浅字用）；light = 浅色托底（深字用，白天场景） */
     .cap-smear {{
       position: absolute; inset: -30px -80px;
       background: url("assets/images/cap-halo.png") 50% 50% / 100% 100% no-repeat;
+    }}
+    .cap-smear.light {{
+      background-image: url("assets/images/cap-halo-light.png");
     }}
     .cap-in span {{ position: relative; }}
   </style>
@@ -142,9 +147,20 @@ CAPTIONS_TMPL = """<template>
 </template>
 """
 
+# 字幕颜色/描边按"这一句属于哪一场"逐条注入：白天深字+浅托底，夜里浅字+深托底。
+# 一部片子会从白天走到夜里，一条字幕颜色不可能通用。
 CAP_GROUP = """      <div id="cap-{n}" class="cap clip" data-start="{s}" data-duration="{d}" data-track-index="0">
-        <div class="cap-in"><i class="cap-smear"></i><span>{t}</span></div>
+        <div class="cap-in" style="color:{colour};text-shadow:{shadow}"><i class="cap-smear{halo_cls}"></i><span>{t}</span></div>
       </div>"""
+
+CAP_STYLES = {
+    "light-text": {"colour": "#f1e6d0",
+                   "shadow": "0 2px 2px rgba(6,12,22,.5), 0 5px 20px rgba(6,12,22,.55)",
+                   "halo": "dark"},
+    "dark-text": {"colour": "#2a2119",
+                  "shadow": "0 1px 1px rgba(255,248,232,.75), 0 4px 18px rgba(255,246,228,.65)",
+                  "halo": "light"},
+}
 
 
 def split_caption(text, limit=21):
@@ -166,13 +182,16 @@ def split_caption(text, limit=21):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--project", required=True)
+    ap.add_argument("--strict-palette", action="store_true",
+                    help="palette 里出现 #rrggbb 自定义色就报错（配色只许用 C-01–C-36）")
     a = ap.parse_args()
     proj = os.path.abspath(a.project)
     film = json.load(open(os.path.join(proj, "film.json"), encoding="utf-8"))
 
     total = float(film["total"])
     fps = int(film.get("fps", 30))
-    pal = film.get("palette", {})
+    colors = load_colors()
+    pal = film.get("palette", {})   # 值可以是 "C-34" 这样的色号，下面统一解析
     lines = film["lines"]
     cap_cfg = film.get("captions", {})
     scenes = film["scenes"]
@@ -199,19 +218,21 @@ def main():
             "authoringSkill": "hyperframes",
         }, open(hf_cfg, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
-    # ---- 光晕贴图（预模糊，别用 filter:blur）
-    halo = os.path.join(proj, "assets", "images", "cap-halo.png")
-    if not os.path.exists(halo):
-        try:
-            from PIL import Image, ImageDraw, ImageFilter
+    # ---- 光晕贴图（预模糊，别用 filter:blur）；深色托底 + 浅色托底各一张
+    try:
+        from PIL import Image, ImageDraw, ImageFilter
+        for fname, rgb in (("cap-halo.png", (7, 7, 7)), ("cap-halo-light.png", (255, 249, 236))):
+            halo = os.path.join(proj, "assets", "images", fname)
+            if os.path.exists(halo):
+                continue
             W, H = 720, 260
             im = Image.new("L", (W, H), 0)
             ImageDraw.Draw(im).rounded_rectangle([70, 40, W - 70, H - 40], radius=70, fill=255)
             im = im.filter(ImageFilter.GaussianBlur(42))
             alpha = im.point(lambda v: int(v * 0.4))
-            Image.merge("RGBA", [Image.new("L", (W, H), 7)] * 3 + [alpha]).save(halo, optimize=True)
-        except Exception as e:
-            print(f"warn: 光晕贴图生成失败（{e}），字幕将没有托底")
+            Image.merge("RGBA", [Image.new("L", (W, H), c) for c in rgb] + [alpha]).save(halo, optimize=True)
+    except Exception as e:
+        print(f"warn: 光晕贴图生成失败（{e}），字幕将没有托底")
 
     # ---- 逐句时长：film.json 可只给 start，duration 由配音实测回填
     timing_path = os.path.join(proj, "voice_timing.json")
@@ -238,7 +259,14 @@ def main():
         sid = sc["id"]
         spec = dict(sc)
         spec["prefix"] = sid
-        spec["palette"] = pal
+        # 逐场配色：scene.palette 盖在 film.palette 上。
+        # 一部片子要从白天走到夜里，全片一份色板 = 全片一个时刻 = 看起来像模板。
+        spec["palette"] = {**pal, **sc.get("palette", {})}
+        custom = []
+        spec = deep_resolve(spec, colors, a.strict_palette, sid, custom)
+        for where, v in custom:
+            print(f"  ! {where} = {v} 不在 handraw-style 色库里（自定义色）")
+        scene_pal = spec["palette"]
         spec_json = json.dumps(spec, ensure_ascii=False)
 
         extra_css, overlays, extra_js = "", "", ""
@@ -249,7 +277,7 @@ def main():
             fade = round(t0 + dur - 1.1, 2)
             t1 = round(T.get("subStart", t0 + 1.7), 2)
             fade2 = round(t1 + 4.2, 2)
-            extra_css += TITLE_CSS.format(sid=sid, lamp=pal.get("lamp", "#f6c445"))
+            extra_css += TITLE_CSS.format(sid=sid, lamp=scene_pal.get("lamp", "#f6c445"))
             overlays += TITLE_HTML.format(sid=sid, t0=t0, dur=dur, fade=fade, t1=t1,
                                           d1=round(fade2 - t1, 2), fade2=fade2,
                                           title=T["text"], sub=T.get("sub", ""))
@@ -258,12 +286,12 @@ def main():
             E = film["endcard"]
             t = round(E["show"] - sc["start"], 2)
             dur = round(sc["end"] - E["show"], 2)
-            extra_css += ENDCARD_CSS.format(sid=sid, lamp=pal.get("lamp", "#f6c445"))
+            extra_css += ENDCARD_CSS.format(sid=sid, lamp=scene_pal.get("lamp", "#f6c445"))
             overlays += ENDCARD_HTML.format(sid=sid, t=t, dur=dur,
                                             title=film["title"]["text"], word=E["word"])
             extra_js += ENDCARD_JS.format(sid=sid, t1=round(t + 0.2, 2), t2=round(t + 1.1, 2))
 
-        html = SCENE_TMPL.format(sid=sid, night=pal.get("night", "#16233a"),
+        html = SCENE_TMPL.format(sid=sid, night=scene_pal.get("night", "#16233a"),
                                  extra_css=extra_css, overlays=overlays,
                                  extra_js=extra_js, spec=spec_json)
         path = os.path.join(proj, "compositions", f"{sid}.html")
@@ -276,25 +304,39 @@ def main():
             f'        data-track-index="{idx + 1}"\n        data-track-kind="graphics"\n'
             f'        data-width="1920"\n        data-height="1080"\n      ></div>')
 
-    # ---- 字幕
+    # ---- 字幕：位置/字号全片统一，颜色按"这一句落在哪一场"逐条换
     cc = cap_cfg
     cap_bottom = cc.get("bottom", 88)
     cap_size = cc.get("size", 45)
-    cap_colour = cc.get("colour", "#f1e6d0")
     lead = cc.get("lead", 0.12)
     tail = cc.get("tail", 0.45)
+
+    def style_for(line):
+        sc = next((s for s in scenes if s["start"] <= line["start"] < s["end"]), scenes[-1])
+        cfg = {**cc, **sc.get("captions", {})}
+        st = dict(CAP_STYLES[cfg.get("style", "light-text")])
+        for k in ("colour", "shadow"):
+            if cfg.get(k):
+                st[k] = cfg[k]
+        if cfg.get("halo"):
+            st["halo"] = cfg["halo"]
+        return st
+
     groups = []
     for i, l in enumerate(lines):
         nxt = lines[i + 1]["start"] if i + 1 < len(lines) else total
         s = round(max(0.0, l["start"] - lead), 3)
         e = min(l["end"] + tail, nxt - 0.02)
-        groups.append(CAP_GROUP.format(n=i + 1, s=s, d=round(e - s, 3),
-                                       t="<br />".join(split_caption(l["text"]))))
+        st = style_for(l)
+        groups.append(CAP_GROUP.format(
+            n=i + 1, s=s, d=round(e - s, 3), colour=st["colour"], shadow=st["shadow"],
+            halo_cls="" if st["halo"] == "dark" else " light",
+            t="<br />".join(split_caption(l["text"]))))
     open(os.path.join(proj, "compositions", "captions.html"), "w", encoding="utf-8").write(
-        CAPTIONS_TMPL.format(bottom=cap_bottom, size=cap_size, colour=cap_colour,
-                             groups="\n".join(groups)))
+        CAPTIONS_TMPL.format(bottom=cap_bottom, size=cap_size, groups="\n".join(groups)))
 
     # ---- 主合成（含视口垫片：没有它，渲染器会把画面底部用页面背景色填掉）
+    first_pal = deep_resolve({**pal, **scenes[0].get("palette", {})}, colors) if scenes else pal
     voice_clips = "\n".join(
         f'      <audio id="{l["id"]}" class="clip" src="assets/voice/{l["id"]}.wav"\n'
         f'        data-start="{l["start"]}" data-duration="{l["duration"]}"\n'
@@ -317,10 +359,10 @@ def main():
         font-weight: 500; font-display: block;
       }}
       :root {{
-        --night: {pal.get("night", "#16233a")};
-        --ink: {pal.get("ink", "#0a1220")};
-        --chalk: {pal.get("chalk", "#f3ead9")};
-        --lamp: {pal.get("lamp", "#f6c445")};
+        --night: {first_pal.get("night", "#16233a")};
+        --ink: {first_pal.get("ink", "#0a1220")};
+        --chalk: {first_pal.get("chalk", "#f3ead9")};
+        --lamp: {first_pal.get("lamp", "#f6c445")};
       }}
       * {{ margin: 0; padding: 0; box-sizing: border-box; }}
       html, body {{ width: 1920px; height: 1080px; overflow: hidden; background: var(--night); }}
@@ -385,7 +427,11 @@ def main():
 """
     open(os.path.join(proj, "index.html"), "w", encoding="utf-8").write(index_html)
 
-    print(f"index.html · {total}s · {len(scenes)} 场 · {len(lines)} 句")
+    print(f"index.html · {total}s · {len(scenes)} 场 · {len(lines)} 句 · 配色取自 handraw-style C-01–C-36")
+    for sc in scenes:
+        ids = sorted({v for v in sc.get("palette", {}).values()
+                      if isinstance(v, str) and v.upper().startswith("C-")})
+        print(f"  {sc['id']} 色号 {' '.join(ids) if ids else '（继承 film.palette）'}")
     for sc in scenes:
         ids = [l["id"] for l in lines if sc["start"] <= l["start"] < sc["end"]]
         print(f"  {sc['id']}  {sc['start']:7.2f} + {round(sc['end'] - sc['start'], 2):6.2f}  {ids}")
