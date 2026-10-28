@@ -80,6 +80,7 @@ python3 scripts/solve_framing.py --project ./projects/firefly   # 求解：自�
 ## 已知边界
 
 - 画面元素库覆盖夜色自然场景；其他环境按 `templates/world.js` 的模式扩展（有清晰的扩展点）。
+  **扩展写在项目副本里（`projects/<name>/assets/`），不改本仓库**——跑片子时技能目录只读，详见 SKILL.md 开头的「⛔ 铁律」。
 - 配音走微软云端，需要联网；离线退回 macOS `say`。
 - 上游 [easyVoice](https://github.com/cosin2077/easyVoice) 无 LICENSE：自用没问题，别二次分发。
 

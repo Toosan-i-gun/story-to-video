@@ -184,6 +184,9 @@ def main():
     ap.add_argument("--project", required=True)
     ap.add_argument("--strict-palette", action="store_true",
                     help="palette 里出现 #rrggbb 自定义色就报错（配色只许用 C-01–C-36）")
+    ap.add_argument("--sync-templates", action="store_true",
+                    help="强制用技能库的 templates 覆盖项目里的 kit.js/world.js"
+                         "（默认：项目内副本优先，见 SKILL.md 开头的铁律）")
     a = ap.parse_args()
     proj = os.path.abspath(a.project)
     film = json.load(open(os.path.join(proj, "film.json"), encoding="utf-8"))
@@ -202,9 +205,25 @@ def main():
     os.makedirs(os.path.join(proj, "assets", "images"), exist_ok=True)
     os.makedirs(os.path.join(proj, "assets", "vendor"), exist_ok=True)
 
-    # ---- 共享脚本
+    # ---- 共享脚本（kit.js / world.js）
+    # 跑片子时扩展素材写在项目里、不许改技能仓库，所以拷贝的优先级是：
+    #   1) projects/<name>/templates/<f>   项目内模板（显式覆盖，最优先）
+    #   2) 已存在的 assets/<f>            用户直接改过的副本 —— 保留，不覆盖
+    #   3) 技能库 templates/<f>           只在项目里还没有时铺一份
+    # 想跟技能库强制对齐（会冲掉项目内的扩展）：--sync-templates
     for f in ("kit.js", "world.js"):
-        shutil.copy(os.path.join(SKILL, "templates", f), os.path.join(proj, "assets", f))
+        local = os.path.join(proj, "templates", f)
+        dst = os.path.join(proj, "assets", f)
+        if a.sync_templates:
+            shutil.copy(os.path.join(SKILL, "templates", f), dst)
+            print(f"  · {f} ← 技能库模板（--sync-templates）")
+        elif os.path.exists(local):
+            shutil.copy(local, dst)
+            print(f"  · {f} ← 项目内 templates/{f}")
+        elif not os.path.exists(dst):
+            shutil.copy(os.path.join(SKILL, "templates", f), dst)
+        else:
+            print(f"  · {f} 用项目内副本（技能模板未覆盖）")
 
     # ---- hyperframes.json（渲染必需；已有则不覆盖，保留用户自定义）
     hf_cfg = os.path.join(proj, "hyperframes.json")

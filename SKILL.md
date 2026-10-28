@@ -8,6 +8,35 @@ description: 把一个故事文本做成一支带配音、字幕、声音底和�
 把一个故事变成一支 3–6 分钟、带旁白、字幕、程序化声音底和手绘画面的动画短片。
 全流程可复现：文本 → 画风与配色 → 分镜计划(film.json) → HyperFrames 合成 → 配音 → 渲染 → QA → 自修 → 交付。
 
+## ⛔ 铁律：生成视频时不许改动本仓库
+
+**跑工作流做一支片子，不许改动本技能所在的 git 仓库（`~/.workbuddy-ai/skills/story-to-video` 指向的那个仓库）里的任何文件。**
+
+技能目录是**只读**的。产物一律只写进**项目目录**（`film.json`、`compositions/`、`assets/`、`renders/`、`LOOK.md`、`NOTES.md`）。
+
+- **需要库里没有的东西**（新环境、新角色、新声音层）：照现有层/角色的写法，在**项目内副本**上扩展
+  （`projects/<name>/assets/kit.js`、`projects/<name>/assets/world.js`），不改仓库模板。
+- **只有仓库本身的逻辑有问题、非改不可时**：**停下来**，把「为什么非改不可 / 改哪几行 / 会影响什么 / 风险」说清楚，
+  **等用户明确同意**再动 `scripts/`、`templates/`、`references/`、`SKILL.md`。没拿到同意就只报告，不动手。
+- **踩到的坑、想补的文档、想加的例子**：先写进项目的 `NOTES.md`，交付时问用户要不要回写技能库。
+  同样不许自作主张写回 `references/` 或本文件。
+- **唯一例外**：用户明确说「把这次的东西写回技能库 / 改这个技能」。
+
+**自查**（交付前必须跑，有输出就是违规）：
+
+```bash
+git -C ~/.workbuddy-ai/skills/story-to-video status --short   # 有输出 = 先确认是不是用户要求的改动，不是就回滚再交付
+```
+
+**项目内副本怎么落地**：`build_film.py` 的拷贝顺序是
+`项目 templates/<f>` → `已有 assets/<f>`（保留不覆盖）→ `技能库 templates/<f>`（只在缺失时铺一份）。
+所以扩展素材有两条路：
+
+- 想跟仓库模板保持可对比：`cp templates/{kit,world}.js projects/<name>/templates/`，改那边；
+- 图省事：直接改 `projects/<name>/assets/{kit,world}.js`，build 不会冲掉。
+
+想让项目跟技能库强制对齐（会冲掉项目内的扩展）：`build_film.py --sync-templates`。
+
 ## 0. 环境准备（新设备先跑一次）
 
 **先判断平台**（三平台的差异、排障顺序、镜像配置见 references/platforms.md）：
@@ -182,14 +211,17 @@ HF_SEGMENTED_CAPTURE=true npx -y hyperframes render --resume -q delivery --worke
 - **必须 `--workers 1`**：多 worker 需 ~5GB 帧暂存，普通机器放不下（详见 pitfalls）。
 - 长片（>4 分钟）用 `HF_SEGMENTED_CAPTURE=true`，分段捕获绕开单阶段超时，且可断点续渲。
 - 交付前最后跑一次 `qa_check.py --video` + `check_framing.py`，全绿才算完成。
+- **交付前查一次仓库有没有被弄脏**：`git -C ~/.workbuddy-ai/skills/story-to-video status --short`
+  必须为空（或只有用户要求改的那几个文件）。有多余输出就说明改了技能库（违规，见开头铁律）——先回滚，再交付。
 - 交付说明里写清：实测响度、时长、文件大小、用了哪些风格编号与色号，
   以及"哪些是实测、哪些是没听过的"。
 
 ## 9. 已知边界
 
 - 画面元素库覆盖：夜色自然场景（河/草丛/树/星空）+ 秋日与洞穴（秋树/落栗/洞口/洞内/干草/果子堆/礼物堆/月亮/月光地/雨/天亮）+ 冬日与灯（雪地/落雪/雪压松/雪丘洞口/挂灯老橡树/全黑/灯照雪地/脚印）+ 萤火虫/蜗牛/刺猬/松鼠/鼹鼠/栗子/小獾/狐狸/兔子/铜灯/马灯。
-  故事需要别的环境（室内房间、雪、海）时，按 world.js 的既有函数扩展一个生成器，
+  故事需要别的环境（室内房间、雪、海）时，照 world.js 的既有函数在**项目副本**里扩展一个生成器，
   保持"大面积剪影 + 少量清晰形状 + 唯一暖色"的规则不变，颜色一律从 `p.*` 取。
+  **不要直接改仓库的 `templates/world.js`**（见开头铁律）。
 - 声音全部是程序化合成的（numpy），没有采样素材：听感偏"氛围"不偏"拟音"，
   真要拟音（脚步质感、翻叶子）得上采样库。
 - 配音是云端 TTS（微软 Edge），需要联网；离线时 `--fallback-tts` 回退系统 TTS：

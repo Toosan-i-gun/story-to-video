@@ -79,8 +79,10 @@
 秋日/洞穴系：`autumnTree` `chestFall` `leafFall` `burrowOut`（`hw` 控制土丘宽度）`burrowIn`（`wall` 可单独给墙色）`straw` `fruitPile` `gifts` `moon` `moonPool` `rain`（`clip` 裁进拱门）`dawn` `dirtHole`
 冬日/灯系：`snowGround`（`colour`/`lit`/`shade`/`drifts`）`snowFall` `pine`（`colour`/`snow`/`snowOp`）`pineRow`（远景林线，别用 farbank 顶，那条会变成绿篱）`bareTree`（落叶树，压雪）`snowBurrow`（雪丘 + 拱门 + 冰凌 + 门口石头）`oakLanterns`（挂满灯的老橡树，`lights` 给 `[x,y,kind]`，kind = root/paper/bottle/ice/copper）`darkness`（盖满画面的黑，配 `darken`）`lampPool`（灯照在雪上的一圈，径向渐变）`tracks`（雪地脚印链）
 
-新环境照 `LAYERS.leaf` 的样子加一个函数：先大剪影，后细节，
-颜色一律从 `p.*` 取，**不要在层里写死 hex**（浅色纸上会变成黑水坑）。
+新环境照 `LAYERS.leaf` 的样子加一个函数：先大剪影，后细节，颜色一律从 `p.*` 取，**不要在层里写死 hex**（浅色纸上会变成黑水坑）。
+
+> **加在哪里**：加在**项目副本**（`projects/<name>/assets/world.js`），不是仓库里的 `templates/world.js`。
+> 跑片子不许改仓库，见 SKILL.md 开头的「⛔ 铁律」。
 
 ## 7. 角色
 
@@ -88,5 +90,5 @@
 冬日：`badger`（小獾）`fox`（`flip` 朝左）`rabbit`（`flip`）`copperLamp`（铜灯）`hurricaneLamp`（马灯）。
 角色都可以给 `flip` / `opacity` / `rim`（受光的那道暖边，灯在旁边时给）；
 灯可以给 `lampOp`（一开始就是灭的）和 `shadowOp: 0`（提在手上时别留地上的影）。
-新角色照 `KIT.snail` 写：身体一块、特征两处、颜色进色板（含 `shadow`）。
+新角色照 `KIT.snail` 写：身体一块、特征两处、颜色进色板（含 `shadow`）。同样写在**项目副本**（`projects/<name>/assets/kit.js`）。
 动作只有位移/scale/scaleX/scaleY，**不用 rotation**（SVG 的 pivot 会跑，见 pitfalls）。
