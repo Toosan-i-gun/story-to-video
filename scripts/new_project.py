@@ -75,7 +75,8 @@ def main():
     print("  5. python3 scripts/build_film.py --project", proj, "--strict-palette")
     print("  6. python3 scripts/make_voice.py --project", proj)
     print("  7. python3 scripts/make_audio.py --project", proj, "--mood", a.mood)
-    print("  8. python3 scripts/check_framing.py --project", proj, "（必须全绿）")
+    print("  8. python3 scripts/check_sync.py --project", proj, "（每个动作都要绑台词，必须全绿）")
+    print("  8b. python3 scripts/check_framing.py --project", proj, "（构图，必须全绿）")
     print("  9. HF_SEGMENTED_CAPTURE=true npx -y hyperframes render --resume && python3 scripts/qa_check.py")
 
 

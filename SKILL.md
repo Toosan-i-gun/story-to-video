@@ -94,7 +94,7 @@ git clone https://ghfast.top/https://github.com/yang0/handraw-style ~/.workbuddy
 | 5 生成 | 项目目录（index.html + compositions/） | `build_film.py --strict-palette` |
 | 6 配音 | `assets/voice/vXX.wav` | `make_voice.py` |
 | 7 声音底 | `assets/audio/bed.wav` | `make_audio.py` |
-| 8 检查 | lint + 快照 + **构图** | `hyperframes check` / `snapshot` / `check_framing.py` |
+| 8 检查 | lint + 快照 + **构图** + **同步** | `hyperframes check` / `snapshot` / `check_framing.py` / `check_sync.py` |
 | 9 渲染 | `renders/<片名>.mp4` | `HF_SEGMENTED_CAPTURE=true hyperframes render --resume` |
 | 10 QA | 帧级体检报告 | `qa_check.py` |
 | 11 自修 | 改 film.json / 重渲 | 按 §7 处置表 |
@@ -153,6 +153,32 @@ python3 scripts/new_project.py --name 小萤火虫 --dir ./projects/firefly
   人物全部掉进字幕带。角色"从地里升起来"的幅度 ≤ 40px。
 - 镜头规则：一次推近 ≤1.35 倍；角色动作都要有因；宽景里镜头停住不超过 2s。
 
+### 5b. 每个动作都要绑一句台词（cue）—— 这一条比构图更容易翻车
+
+**动作的 `t` 不要手填，绑到台词上。** 写了 `cue`，`build_film.py` 会用那句台词的实际起止算出 `t`：
+
+```json
+{ "op": "fade", "target": "leaf0", "cue": "v13", "cueOff": 1.1, "dur": 1.6, "from": 0, "to": 1 }
+{ "op": "fade", "target": "deer",  "cue": "v17", "cueAt": "end", "cueOff": 0.6, "dur": 2.2, "from": 1, "to": 0 }
+```
+
+- `cue: "v13"` = 这个动作属于 v13 那句，`t` = v13 开口的时刻 + `cueOff`。
+- `cueAt: "end"` = 必须等这句**说完**（淡出、离场、转身）。**别用 "start" 让角色在台词中间消失。**
+- 没绑 cue 的动作只该是环境循环（`waddle` `rainfall` `bob` `twinkle` `cloudDrift` `splashIn`）和走路位移。
+
+**为什么必须这样**：语速一改（CPS、`--clamp`、配音实测回填），台词位置全变，手填的 `t` 就整体错位，
+而错位**不会报错**：渲染正常、构图全绿，只有逐帧看片才发现「叶子提前 4 秒就长在壳上」
+「台词里小鹿在问，画面上小鹿已经没了」。这类问题一律用 `check_sync.py` 抓（见 §7）。
+
+配套的两条习惯：
+
+1. **每句台词至少有一个动作或镜头变化从它开始** —— 一句 6 秒的话配着不动的画面，就是没表现这句。
+2. **"东西"不能凭空出现**：叶子先躺在地上（`characters` 里就有它），等那句台词再被捡起来；
+   角色先在场，等那句"跑起来"再跑走。检查器抓不到"凭空出现"，只能靠这条纪律。
+
+> 老项目（`examples/firefly`、`projects/firefly-e2e`）整片没有 cue，`check_sync.py` 会认出来、
+> 只提示不判失败。新片一律绑 cue。
+
 ## 6. 生成与配音
 
 ```bash
@@ -173,6 +199,7 @@ python3 scripts/make_audio.py --project ./projects/firefly    # 程序化声音�
 
 ```bash
 npx hyperframes check --json                     # lint：0 error 才能继续
+python3 scripts/check_sync.py --project .        # 同步：每个动作是否落在它绑的那句台词里
 python3 scripts/check_framing.py --project .     # 构图：人物有没有被字幕压住
 python3 scripts/solve_framing.py --project .     # 构图不绿时：自动迭代修正 focus.y
 npx hyperframes snapshot --at 4,60,120 --no-end -o /tmp/chk
@@ -198,6 +225,8 @@ python3 scripts/qa_check.py --project . --video renders/片名.mp4
 | 字幕被裁/出安全区 | 调 captions 的 `bottom`/`font-size` |
 | lint error | 按 check 的 Fix 行改，多为 transform 冲突（见 references/pitfalls.md） |
 | 配音时长漂移 >0.25s | 重跑 make_voice.py（自动逐句配速） |
+| 动作比台词早/晚（叶子先出现、人先消失） | 给这个动作加 `cue`（+ `cueOff`），别手填 `t`；跑 `check_sync.py` |
+| 台词里的人物在画面上已经没了 | 把淡出改成 `cueAt: "end"` 绑在**它离场那句**上；别绑在上一句 |
 | 画面跟上一部像 | 回 §3：色板是不是又用了同一套？时间跨度有没有拆成多套？ |
 | 声音跟上一部像 | 回 §3b：是不是又用了默认兜底（wind+leaves）？故事里根本没有的水声/虫鸣有没有被塞进来？ |
 

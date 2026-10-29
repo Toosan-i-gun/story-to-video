@@ -272,6 +272,24 @@ def main():
               open(os.path.join(proj, "timing.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
 
+    # ---- cue：动作绑台词（"这个动作属于哪一句"），t 由台词的实际起止算出来
+    # 为什么要它：动作时间手填，一改语速/改台词就错位，而且错位是看不出来的
+    # （叶子提前 4 秒长在壳上、台词里小鹿在问、画面上小鹿已经没了）。
+    # 绑了 cue 之后，改语速只需要重跑 build，画面自动跟着旁白走。
+    by_id = {l["id"]: l for l in lines}
+    for sc in scenes:
+        for o in sc.get("ops", []):
+            cue = o.get("cue")
+            if not cue:
+                continue
+            l = by_id.get(cue)
+            if not l:
+                sys.exit(f"{sc['id']} 的 {o['op']} 绑了不存在的台词 {cue}")
+            base = l["end"] if o.get("cueAt") == "end" else l["start"]
+            o["t"] = round(base - float(sc["start"]) + float(o.get("cueOff", 0)), 2)
+            if o["t"] < 0:
+                o["t"] = 0.0
+
     # ---- 场景
     scene_hosts, scene_files = [], []
     for idx, sc in enumerate(scenes):
