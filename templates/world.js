@@ -51,7 +51,7 @@ window.WORLD = (() => {
         const svgEl = g.ownerSVGElement;
         const defsEl = svgEl.querySelector("defs") || mk("defs", {}, svgEl);
         const id = `skygrad-${Math.round(H)}-${String(L.grad[1]).replace("#", "")}`;
-        if (!svgEl.querySelector(`#${id}`)) {
+        if (!svgEl.querySelector("#" + id)) {
           const lg = mk("linearGradient", {
             id, gradientUnits: "userSpaceOnUse",
             x1: "0", y1: "-120", x2: "0", y2: String(H + 400),
@@ -1117,7 +1117,7 @@ window.WORLD = (() => {
     const prefix = spec.prefix || spec.id;
     const p = spec.palette;
     const f = defs(svg, prefix);
-    const cam = svg.querySelector(`#${prefix}-cam`);
+    const cam = svg.querySelector("#" + prefix + "-cam");
     const R = { cam };
     (spec.layers || []).forEach((L) => {
       const fn = LAYERS[L.type];
@@ -1189,12 +1189,19 @@ window.WORLD = (() => {
           }
           case "glow": { const c = R[o.target]; if (c && c.lamp) tl.fromTo(c.lamp, { opacity: o.from ?? 0.7 }, { opacity: o.to ?? 1, duration: o.dur ?? 1.2, yoyo: true, repeat: o.repeat ?? 8, ease: "sine.inOut" }, t); break; }
           case "lampOut": { const c = R[o.target]; if (c && c.lamp) tl.to(c.lamp, { opacity: o.to ?? 0.06, duration: o.dur ?? 1.6, ease: "power2.in" }, t); break; }
-          case "curl": {  // 缩成一团（给 scaleX/scaleY 就压扁摊宽，像个球）
+          case "curl": {  // 缩成一团 / 单向拉伸（给 scaleX/scaleY 就压扁摊宽）
             const c = R[o.target]; if (!c) break;
-            const tw = { scale: o.scale ?? 0.82, y: o.y ?? 14, duration: o.dur ?? 1.8,
-              ease: "power2.inOut", transformOrigin: o.origin ?? "0px 20px" };
-            if (o.scaleX != null) tw.scaleX = o.scaleX;
-            if (o.scaleY != null) tw.scaleY = o.scaleY;
+            // 铁律：**不能同时给 scale 和 scaleX/scaleY**。GSAP 里 scale 是
+            // scaleX/scaleY 的简写，同一个 vars 里出现时 scale 会把 scaleX 顶掉，
+            // tween 静默失效、不报错、画面一点不动（见 pitfalls.md #6）。
+            const tw = { y: o.y ?? 14, duration: o.dur ?? 1.8,
+              ease: o.ease ?? "power2.inOut", transformOrigin: o.origin ?? "0px 20px" };
+            if (o.scaleX != null || o.scaleY != null) {
+              tw.scaleX = o.scaleX ?? 1;
+              tw.scaleY = o.scaleY ?? 1;
+            } else {
+              tw.scale = o.scale ?? 0.82;
+            }
             tl.to(c.body, tw, t);
             break;
           }

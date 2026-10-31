@@ -224,6 +224,7 @@ python3 scripts/qa_check.py --project . --video renders/片名.mp4
 | 响度不在 −16～−14 LUFS | 调 bed 的 `data-volume`（每 ±0.04 ≈ ±1dB） |
 | 字幕被裁/出安全区 | 调 captions 的 `bottom`/`font-size` |
 | lint error | 按 check 的 Fix 行改，多为 transform 冲突（见 references/pitfalls.md） |
+| 某个动作**完全没生效**（画面一帧不动，也不报错） | 先查 `curl` 是不是同时给了 `scale` 和 `scaleX`（pitfalls #6，GSAP 会静默顶掉）；再在合成里插调试 `<div>` 把 `gsap.getProperty` 打到画面上截图读 |
 | 配音时长漂移 >0.25s | 重跑 make_voice.py（自动逐句配速） |
 | 动作比台词早/晚（叶子先出现、人先消失） | 给这个动作加 `cue`（+ `cueOff`），别手填 `t`；跑 `check_sync.py` |
 | 台词里的人物在画面上已经没了 | 把淡出改成 `cueAt: "end"` 绑在**它离场那句**上；别绑在上一句 |
