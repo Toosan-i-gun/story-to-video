@@ -9,7 +9,7 @@ import argparse, json, os, shutil, sys
 
 SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from color_lib import load as load_colors, deep_resolve
+from color_lib import load as load_colors, deep_resolve, resolve
 
 SCENE_TMPL = """<template>
   <style>
@@ -383,6 +383,35 @@ def main():
         for i, l in enumerate(lines))
     scene_html = "\n".join(scene_hosts)
 
+    # ---- 纸纹颗粒 & 纸边暗角
+    # 纸边原来是写死的 #0a1220 0.14–0.2、四周 26px —— 浅色场景上就是一圈黑框。
+    # 现在默认**不画**，要画就显式给 film.paperEdge（颜色走色号，别写死近黑）。
+    # 默认 0.07 = 老版本"容器 0.5 透明 + overlay"的等效强度，老片子观感不变
+    grain_op = float(film.get("grain", 0.07))
+    fiber_op = float(film.get("fiber", 0.0))
+    mottle_op = float(film.get("mottle", 0.0))
+    edge_cfg = film.get("paperEdge")
+    if edge_cfg:
+        if edge_cfg is True:
+            edge_cfg = {}
+        ew = int(edge_cfg.get("width", 26))
+        eop = float(edge_cfg.get("opacity", 0.1))
+        ehex, _ = resolve(edge_cfg.get("colour", "C-32"), colors)
+        edge_html = (
+            f'      <svg id="paper-edge" class="clip" data-start="0" data-duration="{total}"'
+            f' viewBox="0 0 1920 1080" preserveAspectRatio="none">\n'
+            f'        <g fill="{ehex}">\n'
+            f'          <rect x="0" y="0" width="1920" height="{ew}" opacity="{eop:.2f}" />\n'
+            f'          <rect x="0" y="{1080 - ew}" width="1920" height="{ew}" opacity="{eop * 1.25:.2f}" />\n'
+            f'          <rect x="0" y="0" width="{ew}" height="1080" opacity="{eop * 0.85:.2f}" />\n'
+            f'          <rect x="{1920 - ew}" y="0" width="{ew}" height="1080" opacity="{eop * 0.85:.2f}" />\n'
+            f'        </g>\n      </svg>\n'
+        )
+        edge_css = "      #paper-edge { position: absolute; inset: 0; z-index: 41; pointer-events: none; }"
+    else:
+        edge_html = ""
+        edge_css = ""
+
     index_html = f"""<!doctype html>
 <html lang="zh-CN"
       data-composition-variables='[{{"id":"title","type":"string","label":"片名","default":"{film['title']['text']}"}},{{"id":"signoff","type":"string","label":"落款","default":"{film.get('endcard',{}).get('word','晚安')}"}}]'>
@@ -406,9 +435,8 @@ def main():
       * {{ margin: 0; padding: 0; box-sizing: border-box; }}
       html, body {{ width: 1920px; height: 1080px; overflow: hidden; background: var(--night); }}
       #root {{ position: absolute; inset: 0; background: var(--night); }}
-      #paper-grain {{ position: absolute; inset: 0; z-index: 40; pointer-events: none;
-        opacity: 0.5; mix-blend-mode: overlay; }}
-      #paper-edge {{ position: absolute; inset: 0; z-index: 41; pointer-events: none; }}
+      #paper-grain {{ position: absolute; inset: 0; z-index: 40; pointer-events: none; }}
+{edge_css}
     </style>
   </head>
   <body>
@@ -439,22 +467,29 @@ def main():
 
 {voice_clips}
 
+      <!-- 纸肌理三层：粗纤维（吸墨）＋ 细颗粒（纸面）＋ 水渍斑（颜料沉淀）。
+           一层噪点只能做出"脏"，三层叠起来才像纸和颜料。 -->
       <svg id="paper-grain" class="clip" data-start="0" data-duration="{total}" viewBox="0 0 1920 1080" preserveAspectRatio="none">
-        <filter id="grain-f" x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7" result="n" />
+        <filter id="fiber-f" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.011 0.055" numOctaves="3" seed="21" result="n" />
           <feColorMatrix in="n" type="saturate" values="0" />
         </filter>
-        <rect width="1920" height="1080" filter="url(#grain-f)" opacity="0.14" />
+        <filter id="grain-f" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" seed="7" result="n" />
+          <feColorMatrix in="n" type="saturate" values="0" />
+        </filter>
+        <filter id="mottle-f" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="2" seed="43" result="n" />
+          <feColorMatrix in="n" type="saturate" values="0" />
+        </filter>
+        <rect width="1920" height="1080" filter="url(#fiber-f)" opacity="{fiber_op}"
+              style="mix-blend-mode:multiply" />
+        <rect width="1920" height="1080" filter="url(#mottle-f)" opacity="{mottle_op}"
+              style="mix-blend-mode:soft-light" />
+        <rect width="1920" height="1080" filter="url(#grain-f)" opacity="{grain_op}"
+              style="mix-blend-mode:overlay" />
       </svg>
-      <svg id="paper-edge" class="clip" data-start="0" data-duration="{total}" viewBox="0 0 1920 1080" preserveAspectRatio="none">
-        <g fill="#0a1220">
-          <rect x="0" y="0" width="1920" height="26" opacity="0.16" />
-          <rect x="0" y="1054" width="1920" height="26" opacity="0.2" />
-          <rect x="0" y="0" width="26" height="1080" opacity="0.14" />
-          <rect x="1894" y="0" width="26" height="1080" opacity="0.14" />
-        </g>
-      </svg>
-    </div>
+{edge_html}    </div>
     <script>
       window.__timelines["main"] = gsap.timeline({{ paused: true }});
     </script>

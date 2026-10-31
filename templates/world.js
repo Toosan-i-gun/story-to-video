@@ -18,8 +18,8 @@ window.WORLD = (() => {
     mk("filter", {
       id: `${prefix}-wob`, x: "-6%", y: "-6%", width: "112%", height: "112%",
       innerHTML:
-        `<feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="3" seed="17" result="t"/>` +
-        `<feDisplacementMap in="SourceGraphic" in2="t" scale="9" xChannelSelector="R" yChannelSelector="G"/>`,
+        `<feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="4" seed="17" result="t"/>` +
+        `<feDisplacementMap in="SourceGraphic" in2="t" scale="17" xChannelSelector="R" yChannelSelector="G"/>`,
     }, defsEl);
     mk("filter", {
       id: `${prefix}-wob-s`, x: "-8%", y: "-8%", width: "116%", height: "116%",
@@ -36,6 +36,22 @@ window.WORLD = (() => {
     if (!defsEl.querySelector("#" + id)) {
       const el = mk("radialGradient", { id, cx: "50%", cy: "50%", r: "50%" }, defsEl);
       stops.forEach(([off, col, op]) => mk("stop", { offset: off, "stop-color": col, "stop-opacity": op ?? 1 }, el));
+    }
+    return "url(#" + id + ")";
+  }
+
+  // 一块面上的"颜料渐变"：同一个面从亮走到暗。
+  // 纯色面是"矢量图"的根源；面上一走渐变，立刻变成"涂上去的"。
+  // 两个色都必须来自色板（c1 亮 / c2 暗），不许自己编 hex。
+  function wash(svgEl, id, c1, c2, x1, y1, x2, y2) {
+    const defsEl = svgEl && svgEl.querySelector("defs");
+    if (!defsEl) return c1;
+    if (!svgEl.querySelector("#" + id)) {
+      const lg = mk("linearGradient", {
+        id, gradientUnits: "userSpaceOnUse", x1, y1, x2, y2,
+      }, defsEl);
+      [[0, c1], [48, c1], [100, c2]].forEach(([off, c]) =>
+        mk("stop", { offset: off + "%", "stop-color": c }, lg));
     }
     return "url(#" + id + ")";
   }
@@ -618,13 +634,28 @@ window.WORLD = (() => {
     },
 
     moon(g, L, p, f, R) {
-      // 月亮：冷白的，跟那颗栗子的暖缝分得清
+      // 月亮：冷白的，跟那颗栗子的暖缝分得清。
+      // 光晕必须用径向渐变 —— 叠三层同心圆会在夜空上画出一圈圈明显的环（踩过）。
       const x = L.x ?? 1620, y = L.y ?? 210, r = L.r ?? 58;
+      const c = L.colour ?? p.moon ?? "#dfe9f2";
       const grp = mk("g", {}, g);
-      mk("circle", { cx: x, cy: y, r: r * 3.6, fill: p.moon ?? "#dfe9f2", opacity: "0.035" }, grp);
-      mk("circle", { cx: x, cy: y, r: r * 2.2, fill: p.moon ?? "#dfe9f2", opacity: "0.055" }, grp);
-      mk("circle", { cx: x, cy: y, r, fill: p.moon ?? "#dfe9f2", opacity: "0.86" }, grp);
-      mk("circle", { cx: x - r * 0.34, cy: y - r * 0.26, r: r * 0.9, fill: p.night, opacity: "0.1" }, grp);
+      const svgEl = g.ownerSVGElement;
+      const defsEl = svgEl && svgEl.querySelector("defs");
+      let halo = c;
+      if (defsEl) {
+        const id = "moonglow-" + Math.round(x) + "-" + Math.round(y);
+        if (!svgEl.querySelector("#" + id)) {
+          const rg = mk("radialGradient", {
+            id, gradientUnits: "userSpaceOnUse", cx: x, cy: y, r: r * 4.4,
+          }, defsEl);
+          [[0, 0.5], [15, 0.2], [40, 0.06], [100, 0]].forEach(([off, o]) =>
+            mk("stop", { offset: off + "%", "stop-color": c, "stop-opacity": o }, rg));
+        }
+        halo = "url(#" + id + ")";
+      }
+      mk("circle", { cx: x, cy: y, r: r * 4.4, fill: halo }, grp);
+      mk("circle", { cx: x, cy: y, r, fill: c, opacity: (L.op ?? 0.9) }, grp);
+      mk("circle", { cx: x - r * 0.3, cy: y - r * 0.24, r: r * 0.86, fill: p.night, opacity: "0.1" }, grp);
       R.moon = grp;
     },
 
@@ -1032,6 +1063,80 @@ window.WORLD = (() => {
       }
       R.tracks = els;
     },
+  };
+
+  // ================= 画面质感（2026-10-31 补，做《不想被拉长的小影子》踩的） =================
+  // 这四层是"把矢量图变成画"的最小组合：光衰减给纵深、接地影给接触、笔触打散纯色面、
+  // 夜色压层让夜景真的暗下来。缺任何一样，画面都会退回"色块拼贴"。
+
+  // 光衰减：从光源中心往外越来越暗。没有它，整面墙一个亮度。
+  LAYERS.lightWash = function (g, L, p, f, R) {
+    const x = L.x ?? 300, y = L.y ?? 500, rad = L.r ?? 1600;
+    const c = L.colour ?? p.wallShade ?? p.ink;
+    const op = L.op ?? 0.2;
+    const svgEl = g.ownerSVGElement;
+    const defsEl = svgEl && svgEl.querySelector("defs");
+    // 拿不到 defs 就**什么都别画**。退回纯色填充 = 一块不透明色盖住整幅画（踩过）。
+    if (!defsEl) return;
+    const id = "wash-" + Math.round(x) + "-" + Math.round(y) + "-" + Math.round(rad);
+    if (!svgEl.querySelector("#" + id)) {
+      const rg = mk("radialGradient", {
+        id, gradientUnits: "userSpaceOnUse", cx: x, cy: y, r: rad,
+      }, defsEl);
+      [[0, 0], [34, 0], [62, op * 0.4], [84, op * 0.8], [100, op]].forEach(([off, o]) =>
+        mk("stop", { offset: off + "%", "stop-color": c, "stop-opacity": o.toFixed(3) }, rg));
+    }
+    const grp = mk("g", {}, g);
+    mk("rect", { x: -800, y: -800, width: 3600, height: 2800, fill: "url(#" + id + ")" }, grp);
+    R.wash = grp;
+  };
+
+  // 接地影（AO）：物体和地面接触的那一圈暗。没有它，东西像贴在纸上。
+  LAYERS.contactShadow = function (g, L, p, f, R) {
+    const grp = mk("g", {}, g);
+    const c = L.colour ?? p.shadow ?? p.wallShade ?? p.ink;
+    const op = L.op ?? 0.45;
+    (L.items || []).forEach(([x, y, rx, ry]) => {
+      [[1.0, 0.2], [0.72, 0.26], [0.44, 0.32]].forEach(([k, o]) =>
+        mk("ellipse", {
+          cx: x, cy: y, rx: rx * k, ry: ry * k, fill: c, opacity: (op * o).toFixed(3),
+        }, grp));
+    });
+    R.contact = grp;
+  };
+
+  // 颜料笔触：一层很短的笔，压在整幅画上。
+  // 每个形状原本是一个纯色面 —— 撒一层低不透明度的冷暖短笔，纯色面就"涂上去了"。
+  // 注意不透明度：低于 0.03 在成片里等于不存在（踩过）。
+  LAYERS.paintTexture = function (g, L, p, f, R) {
+    const grp = mk("g", {}, g);
+    const dark = L.dark ?? p.wallShade ?? p.ink;
+    const light = L.light ?? p.chalk ?? p.moon;
+    const n = L.count ?? 520;
+    for (let i = 0; i < n; i++) {
+      const x = -120 + rnd(i + 11) * 2160;
+      const y = -80 + rnd(i + 21) * 1240;
+      const len = 9 + rnd(i + 31) * 26;
+      const ang = (rnd(i + 41) - 0.5) * 0.85 - 0.3;
+      mk("path", {
+        d: `M${x.toFixed(0)},${y.toFixed(0)} l${(Math.cos(ang) * len).toFixed(1)},${(Math.sin(ang) * len).toFixed(1)}`,
+        stroke: rnd(i + 51) > 0.6 ? light : dark,
+        "stroke-width": (1.3 + rnd(i + 61) * 2.4).toFixed(1),
+        "stroke-linecap": "round",
+        opacity: (0.02 + rnd(i + 71) * 0.035).toFixed(3),
+      }, grp);
+    }
+    R.texture = grp;
+  };
+
+  // 夜色压层：月亮下的墙本来就该比白天暗，不然夜里墙还是白天的亮度。
+  LAYERS.nightTint = function (g, L, p, f, R) {
+    const grp = mk("g", {}, g);
+    mk("rect", {
+      x: -400, y: -400, width: 3000, height: 2000,
+      fill: L.colour ?? p.night, opacity: (L.op ?? 0.3).toFixed(2),
+    }, grp);
+    R.tint = grp;
   };
 
   // ---------- 角色 ----------
